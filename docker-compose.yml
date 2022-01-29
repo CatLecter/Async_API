@@ -1,0 +1,60 @@
+version: "3"
+services:
+  fastapi:
+    container_name: fastapi
+    build:
+      context: ./src
+      dockerfile: fastapi.dockerfile
+#    env_file:
+#      - .env
+    #volumes:
+    #  - ./src:/app
+    depends_on:
+      - redis
+      - elastic
+      - postgres
+    ports:
+      - "8000:8000"
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: elastic
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "1234:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  redis:
+    image: redis:6.0.9
+    container_name: redis
+    ports:
+      - 6379:6379
+    depends_on:
+      - elastic
+
+volumes:
+    postgres_data:
+      external: true
+    pgadmin_data:
+      external: true
