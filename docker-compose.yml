@@ -5,8 +5,8 @@ services:
     build:
       context: ./src
       dockerfile: fastapi.dockerfile
-#    env_file:
-#      - .env
+    env_file:
+      - .env
     #volumes:
     #  - ./src:/app
     depends_on:
