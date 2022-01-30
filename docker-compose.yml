@@ -45,5 +45,3 @@ services:
 volumes:
     postgres_data:
       external: true
-    pgadmin_data:
-      external: true
