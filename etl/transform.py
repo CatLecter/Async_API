@@ -2,11 +2,10 @@ import json
 from typing import Generator
 
 import backoff
+from config import MONGO_URI, log_config, storage
 from loguru import logger
 from pydantic import ValidationError
 from pymongo.errors import PyMongoError
-
-from config import MONGO_URI, log_config, storage
 from utils import mongo_conn_context
 
 logger.add(**log_config)
@@ -44,7 +43,7 @@ class Transform:
                                 # то записываем её к подготовленным данным
                                 collection.insert_one(as_json)
                                 logger.info(
-                                    f"Запись с id: {data_for_index.id} обработана и отправлена в {self.collect_name}."
+                                    f"Запись с id: {data_for_index.id} обработана и содержится в {self.collect_name}."
                                 )
                         except ValidationError as err:
                             logger.exception(err)

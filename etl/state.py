@@ -2,14 +2,14 @@ import json
 
 import backoff
 import psycopg2
+from config import PG_DSN, list_tables, log_config
+from extractor import PsqlExtractor
 from loguru import logger
 from psycopg2 import OperationalError
 from psycopg2.extras import DictCursor
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
-from config import PG_DSN, list_tables, log_config
-from extractor import PsqlExtractor
 from models import State
 
 logger.add(**log_config)
@@ -34,11 +34,6 @@ class MongoState:
         for row in batch:
             result.append(row["id"])
         return tuple(result)
-
-    def additional_verification(self):
-        """Дополнительная проверка фильмов по обновлению жанров и персон."""
-
-        pass
 
     @logger.catch
     @backoff.on_exception(backoff.expo, OperationalError, 10)

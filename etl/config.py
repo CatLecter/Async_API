@@ -9,8 +9,7 @@ PG_DSN = {
     "dbname": os.environ.get("POSTGRES_DB"),
     "user": os.environ.get("POSTGRES_USER"),
     "password": os.environ.get("POSTGRES_PASSWORD"),
-    # "host": "postgres",
-    "host": os.environ.get("POSTGRES_HOST"),
+    "host": "postgres",
     "port": os.environ.get("POSTGRES_PORT"),
     "options": "-c search_path=content",
 }

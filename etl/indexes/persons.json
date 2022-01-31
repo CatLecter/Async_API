@@ -53,7 +53,17 @@
         "type": "keyword"
       },
       "film_ids": {
-        "type": "keyword"
+        "type": "nested",
+        "dynamic": "strict",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "analyzer": "ru_en"
+          }
+        }
       }
     }
   }
