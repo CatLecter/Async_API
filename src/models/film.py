@@ -1,8 +1,7 @@
 import uuid
-from typing import Union, Optional, List, Dict
+from typing import Dict, List, Optional, Union
 
 import orjson
-
 # Используем pydantic для упрощения работы при перегонке данных из json в объекты
 from pydantic import BaseModel
 
@@ -54,6 +53,7 @@ class Person(BaseModel):
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
         json_dumps = orjson_dumps
+
 
 # class Actor(Person):
 #     pass

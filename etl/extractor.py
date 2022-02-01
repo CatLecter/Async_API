@@ -80,7 +80,7 @@ class PsqlExtractor:
                 film_work.rating AS imdb_rating,
                 film_work.title,
                 film_work.description,
-                ARRAY_AGG(DISTINCT genre.name) AS genre,
+                JSON_AGG(DISTINCT jsonb_build_object('id', genre.id, 'name', genre.name)) AS genre,
                 JSON_AGG(DISTINCT person.full_name) FILTER (WHERE person_film_work.role = 'director') AS director,
                 JSON_AGG(DISTINCT jsonb_build_object('id', person.id, 'name', person.full_name))
                     FILTER (WHERE person_film_work.role = 'actor') AS actors,

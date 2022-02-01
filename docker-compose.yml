@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres:14.1-alpine3.15
     container_name: postgres
-#    ports:
-#      - ${POSTGRES_PORT}:5432
+    ports:
+      - ${POSTGRES_PORT}:5432
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -39,7 +39,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./movies_admin/static/:/static
     ports:
-      - 80:80
+      - "80:80"
     depends_on:
       - admin_panel
       - postgres
