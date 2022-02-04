@@ -12,54 +12,19 @@ def orjson_dumps(v, *, default):
 
 
 class Film(BaseModel):
-    id: Union[int, str, uuid.UUID]
+    id: Optional[str]
     imdb_rating: Optional[float]
-    genre: List[str]
-    title: str
+    genre: Optional[List[Optional[str]]]
+    title: Optional[str]
     description: Optional[str]
-    director: List[str]
-    actors_names: List[str]
-    writers_names: List[str]
-    actors: List[Dict[str, str]]
-    writers: List[Dict[str, str]]
+    director: Optional[List[str]]
+    actors_names: Optional[List[str]]
+    writers_names: Optional[List[str]]
+    actors: Optional[List[Dict[str, str]]]
+    writers: Optional[List[Dict[str, str]]]
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
         json_dumps = orjson_dumps
 
-
-# class TvSeries(Film):
-#     pass
-
-
-class Genre(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
-    films: Optional[List[dict]]
-
-    class Config:
-        # Заменяем стандартную работу с json на более быструю
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
-
-
-class Person(BaseModel):
-    full_name: Optional[str]
-    role: Optional[str]
-    film_ids: Optional[list]
-
-    class Config:
-        # Заменяем стандартную работу с json на более быструю
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
-
-
-# class Actor(Person):
-#     pass
-#
-# class Director(Person):
-#     pass
-#
-# class Writer(Person):
-#     pass
