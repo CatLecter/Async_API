@@ -11,10 +11,15 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
+class Genre(BaseModel):
+    id: Optional[str]
+    name: Optional[str]
+
+
 class Film(BaseModel):
     id: Optional[str]
     imdb_rating: Optional[float]
-    genre: Optional[List[Optional[str]]]
+    genre: Optional[List[Optional[Genre]]]
     title: Optional[str]
     description: Optional[str]
     director: Optional[List[str]]
@@ -27,4 +32,3 @@ class Film(BaseModel):
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
         json_dumps = orjson_dumps
-

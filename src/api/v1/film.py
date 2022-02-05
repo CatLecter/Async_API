@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Optional, List, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -8,9 +9,24 @@ from services.film import FilmService, get_film_service
 router = APIRouter()
 
 
+class Genre(BaseModel):
+    id: Optional[str]
+    name: Optional[str]
+
+
+# заголовок, содержание, дата создания, возрастной ценз, режиссёры, актёры, сценаристы, жанры, ссылка на файл.
 class Film(BaseModel):
-    id: str
-    title: str
+    id: Optional[str]
+    title: Optional[str]
+    description: Optional[str]
+    # # дата создания
+    # # возрастной ценз
+    director: Optional[List[str]]
+    actors_names: Optional[List[str]]
+    actors: Optional[List[Dict[str, str]]]
+    writers_names: Optional[List[str]]
+    genre: Optional[List[Optional[Genre]]]
+    # ссылка на файл.
 
 
 # Внедряем FilmService с помощью Depends(get_film_service)
@@ -31,4 +47,12 @@ async def film_details(
     # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
     # вы бы предоставляли клиентам данные, которые им не нужны
     # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id, title=film.title)
+    return Film(id=film.id,
+                title=film.title,
+                description=film.description,
+                director=film.director,
+                actors=film.actors,
+                actors_names=film.actors_names,
+                writers_names=film.writers_names,
+                genre=film.genre
+                )
