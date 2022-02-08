@@ -1,5 +1,4 @@
-import uuid
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import orjson
 # Используем pydantic для упрощения работы при перегонке данных из json в объекты
@@ -11,55 +10,28 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
-class Film(BaseModel):
-    id: Union[int, str, uuid.UUID]
-    imdb_rating: Optional[float]
-    genre: List[str]
-    title: str
-    description: Optional[str]
-    director: List[str]
-    actors_names: List[str]
-    writers_names: List[str]
-    actors: List[Dict[str, str]]
-    writers: List[Dict[str, str]]
-
-    class Config:
-        # Заменяем стандартную работу с json на более быструю
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
-
-
-# class TvSeries(Film):
-#     pass
+def orjson_loads(bytes_obj):
+    return orjson.loads(bytes_obj)
 
 
 class Genre(BaseModel):
+    id: Optional[str]
     name: Optional[str]
+
+
+class Film(BaseModel):
+    id: Optional[str]
+    imdb_rating: Optional[float]
+    genre: Optional[List[Optional[Genre]]]
+    title: Optional[str]
     description: Optional[str]
-    films: Optional[List[dict]]
+    director: Optional[List[str]]
+    actors_names: Optional[List[str]]
+    writers_names: Optional[List[str]]
+    actors: Optional[List[Dict[str, str]]]
+    writers: Optional[List[Dict[str, str]]]
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
         json_dumps = orjson_dumps
-
-
-class Person(BaseModel):
-    full_name: Optional[str]
-    role: Optional[str]
-    film_ids: Optional[list]
-
-    class Config:
-        # Заменяем стандартную работу с json на более быструю
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
-
-
-# class Actor(Person):
-#     pass
-#
-# class Director(Person):
-#     pass
-#
-# class Writer(Person):
-#     pass
