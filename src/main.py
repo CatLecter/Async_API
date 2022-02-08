@@ -5,8 +5,9 @@ import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+# from fastapi.staticfiles import StaticFiles
 
-from api.v1 import film
+from api.v1 import film, genre, person
 from core import config
 from core.logger import LOGGING
 from db import elastic, redis
@@ -22,7 +23,10 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup():
     redis.redis = await aioredis.create_redis_pool(
-        (config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20
+        address=(config.REDIS_HOST, config.REDIS_PORT),
+        db=0,
+        minsize=10,
+        maxsize=20,
     )
     elastic.es = AsyncElasticsearch(
         hosts=[f"{config.ELASTIC_HOST}:{config.ELASTIC_PORT}"]
@@ -34,10 +38,10 @@ async def shutdown():
     await redis.redis.close()
     await elastic.es.close()
 
-
-# Подключаем роутер к серверу, указав префикс /v1/film
-# Теги указываем для удобства навигации по документации
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(film.router, prefix="/api/v1/film", tags=["film"])
+app.include_router(genre.router, prefix="/api/v1/genre", tags=["genre"])
+app.include_router(person.router, prefix="/api/v1/person", tags=["person"])
 
 if __name__ == "__main__":
     uvicorn.run(

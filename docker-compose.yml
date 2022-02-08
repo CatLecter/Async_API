@@ -93,6 +93,23 @@ services:
     links:
       - redis
 
+  api:
+    build: ./src/
+    container_name: api
+    restart: always
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - ELASTIC_HOST=${ELASTIC_HOST}
+      - ELASTIC_PORT=${ELASTIC_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - elastic
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
 volumes:
   es:
     driver: local

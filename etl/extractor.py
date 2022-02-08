@@ -63,11 +63,12 @@ class PsqlExtractor:
                 person.id,
                 person.full_name,
                 person_film_work.role,
-                JSON_AGG(DISTINCT jsonb_build_object('id', person_film_work.film_work_id)) AS film_ids
+                JSON_AGG(DISTINCT jsonb_build_object('id', film_work.id, 'title', film_work.title, 'imdb_rating', film_work.rating)) AS film_ids
             FROM content.person
                 LEFT OUTER JOIN content.person_film_work ON (person.id = person_film_work.person_id)
+                LEFT OUTER JOIN content.film_work ON (person_film_work.film_work_id = film_work.id)
             WHERE person.id IN {tuple_id}
-            GROUP BY person.id, person.full_name, person_film_work.role;
+            GROUP BY person.id, person.full_name, person_film_work.role
             """
         )
         return self.cursor.fetchall()

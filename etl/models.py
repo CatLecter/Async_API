@@ -38,4 +38,4 @@ class Genres(Genre):
 class Persons(Id):
     full_name: Optional[str]
     role: Optional[str]
-    film_ids: Optional[List[Id]]
+    film_ids: Optional[List[dict]]
