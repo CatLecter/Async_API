@@ -1,7 +1,8 @@
 from http import HTTPStatus
 from typing import Optional, List, Dict
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from services.film import FilmService, get_film_service
@@ -18,6 +19,10 @@ class Genre(BaseModel):
 class Film(BaseModel):
     id: Optional[str]
     title: Optional[str]
+    imdb_rating: Optional[float]
+
+
+class FullFilm(Film):
     description: Optional[str]
     # # дата создания
     # # возрастной ценз
@@ -29,11 +34,41 @@ class Film(BaseModel):
     # ссылка на файл.
 
 
+@router.get("", response_model=list[Film],
+            summary="Список фильмов",
+            description="Информация о фильмах + сортировка по imdb_rating + фильтр по uuid жанров")
+async def films_list(
+        sort_: Optional[str] = Query('-imdb_rating', alias='sort'),
+        page_size_: Optional[int] = Query(50, alias='page[size]'),
+        page_number_: Optional[int] = Query(1, alias='page[number]'),
+        filter_genre_: Optional[UUID] = Query(None, alias='filter[genre]'),
+        film_service: FilmService = Depends(get_film_service)
+) -> list[Film]:
+    search_params = {
+        'sort': sort_,
+        'page_size': page_size_,
+        'page_number': page_number_,
+        'filter_genre': filter_genre_
+    }
+    films = await film_service.get_films_list(search_params=search_params)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="films not found")
+    films = [Film(**f.dict()) for f in films]
+    return films
+
+
 # Внедряем FilmService с помощью Depends(get_film_service)
-@router.get("/{film_id}", response_model=Film)
+@router.get("/{film_id}", response_model=FullFilm,
+            summary="Полная информация по фильму",
+            description="Фильм отображается по uuid")
 async def film_details(
-        film_id: str, film_service: FilmService = Depends(get_film_service)
-) -> Film:
+        film_id: str = Query(
+            title='UUID фильма',
+            default=None,
+            example='120b091b-c266-41e9-9be6-64e6751c02ad',
+        ),
+        film_service: FilmService = Depends(get_film_service)
+) -> FullFilm:
     film = await film_service.get_by_id(film_id)
     if not film:
         # Если фильм не найден, отдаём 404 статус
@@ -47,12 +82,34 @@ async def film_details(
     # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
     # вы бы предоставляли клиентам данные, которые им не нужны
     # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id,
-                title=film.title,
-                description=film.description,
-                director=film.director,
-                actors=film.actors,
-                actors_names=film.actors_names,
-                writers_names=film.writers_names,
-                genre=film.genre
-                )
+    return FullFilm(id=film.id,
+                    title=film.title,
+                    imdb_rating=film.imdb_rating,
+                    description=film.description,
+                    director=film.director,
+                    actors=film.actors,
+                    actors_names=film.actors_names,
+                    writers_names=film.writers_names,
+                    genre=film.genre
+                    )
+
+
+@router.get("/search/", response_model=list[Film],
+            summary="Поиск фильмов",
+            description='Поиск фильмов по заголовку и/или описанию.')
+async def search_films(
+        query_: Optional[str] = Query(default=None, example='Captain', alias='query'),
+        page_size_: Optional[int] = Query(50, alias='page[size]'),
+        page_number_: Optional[int] = Query(1, alias='page[number]'),
+        film_service: FilmService = Depends(get_film_service)
+) -> list[Film]:
+    search_params = {
+        'query': query_,
+        'page_size': page_size_,
+        'page_number': page_number_
+    }
+    films = await film_service.search_films(search_params=search_params)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="films not found")
+    films = [Film(**f.dict()) for f in films]
+    return films
