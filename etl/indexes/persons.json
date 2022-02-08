@@ -59,9 +59,12 @@
           "id": {
             "type": "keyword"
           },
-          "name": {
+          "title": {
             "type": "text",
             "analyzer": "ru_en"
+          },
+          "imdb_rating": {
+            "type": "float"
           }
         }
       }
