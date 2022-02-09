@@ -4,9 +4,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
+from core.config import Settings
 from services.person import PersonService, get_person_service
 
 router = APIRouter()
+
+settings = Settings()
 
 
 class Id(BaseModel):
@@ -25,7 +28,9 @@ async def person_details(
 ) -> Person:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="person not found")
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail=settings.PERSONS_NOT_FOUND
+        )
     return Person(
         id=person.id,
         full_name=person.full_name,
@@ -40,7 +45,9 @@ async def films_by_person(
 ):
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="person not found")
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail=settings.PERSONS_NOT_FOUND
+        )
     return person.film_ids
 
 
@@ -59,6 +66,6 @@ async def search_person(
     )
     if not persons:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="persons not found"
+            status_code=HTTPStatus.NOT_FOUND, detail=settings.PERSONS_NOT_FOUND
         )
     return persons

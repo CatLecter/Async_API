@@ -42,7 +42,11 @@ class PersonService:
     ):
         # формируем уникальное значение hash, состоящее из строки параметров запроса
         # и используем его как ключ к запросу list[id] персон
-        hash_query = str(hash(f"{query}{filter_field}{filter_value}{sort_field}{page_size}{page_number}"))
+        hash_query = str(
+            hash(
+                f"{query}{filter_field}{filter_value}{sort_field}{page_size}{page_number}"
+            )
+        )
         list_persons = []
         list_ids = []
         if _list_ids := await self.redis.get(hash_query):

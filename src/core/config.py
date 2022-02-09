@@ -23,6 +23,9 @@ class Settings(BaseSettings):
 
     # Корень проекта
     BASE_DIR: str = str(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    FILMS_NOT_FOUND: str = "Films not found."
+    PERSONS_NOT_FOUND: str = "Persons not found."
+    GENRES_NOT_FOUND: str = "Genres not found."
 
     class Config:
-        env_file = '.env'
+        env_file = ".env"

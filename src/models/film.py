@@ -1,18 +1,13 @@
 from typing import Dict, List, Optional
 
-# Используем pydantic для упрощения работы при перегонке данных из json в объекты
-from pydantic import BaseModel
-
 from models.base import Base
 
 
-class Genre(BaseModel):
-    id: Optional[str]
+class Genre(Base):
     name: Optional[str]
 
 
 class Film(Base):
-    id: Optional[str]
     imdb_rating: Optional[float]
     genre: Optional[List[Optional[Genre]]]
     title: Optional[str]

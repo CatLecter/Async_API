@@ -1,10 +1,10 @@
-FROM python:3.9.10-bullseye
+FROM python:3.9.9-slim-bullseye
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 
-WORKDIR /usr/src/api
+WORKDIR /usr/src/movies_admin
 
 COPY ./requirements.txt .
 RUN pip install --upgrade pip \
@@ -12,4 +12,4 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-CMD ["gunicorn", "-w", "1", "-k", "uvicorn.workers.UvicornH11Worker", "--bind", "0.0.0.0:8000", "main:app", "--reload"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi", "--reload"]

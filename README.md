@@ -1,30 +1,16 @@
 # Инструкция по запуску #
-> Поскольку сейчас в проекте отсутствуют некоторые файлы из прошлых спринтов, то был создан docker-compose-dev-sample.yml. 
-> Он так назван чтобы не пересекаться с имеющимся локально docker-compose-dev.yml у людей разрабатывающих проект.
+> <span style="color:red">Проект рекомендуется запускать с заранее подготовленной и заполненной базой данных.</span>
+> Если БД готова, то пункты 3, 4 и 5 пропустить.
+> Если такая БД отсутствует, то следует выполнить следующие операции:
 
-1. Запустить уже иметь заполненную рабочую бд postgres на порту 5432.  (из 2ого/3его спринта)
-2. Скопировать **.env.sample** как **.env**. В котором указать имена/пароли/явки для постргрес.
-3. Создать локальный volume для эластик.
-```shell
-docker volume create es
-```
-4. Запустить docker-compose-dev-sample
-```shell
-docker-compose -f docker-compose-dev-sample.yml up -d --build
-```
-- расстроиться, что ничего не запустилось
-- убить всё (выполнить скрипт из последнего пункта)
-- заккомментировать nginx
-- продолжить с пункта 4
-- (опционально) Попросить положить конфиги njinx в проект git, а чтобы запускалось без проблем ещё и статику, хоть это и зашквар
-
-5. Подождать пока эластик перекачает бд, в нашем случае это занимает не более 5и минут.
-6. Пользоваться фаст апи -> http://127.0.0.1/api/openapi  (такой линк у шиндовс)
-
-94. Чтобы остановить проект
-```shell
-docker-compose -f docker-compose-dev-sample.yml down
-```
+1. Выполнить <span style="color:orange">git clone git@github.com:CatLecter/Async_API.git</span>
+2. Все необходимые пакеты указаны в <span style="color:green">pyproject.toml</span> и устанавливаются с помощью <span style="color:blue">Poetry</span>
+3. Заполнить <span style="color:green">.env</span> в соответствии с шаблоном <span style="color:green">.env.sample</span> и выполнить команду <span style="color:orange">source .env</span>
+4. Выполнить <span style="color:orange">docker-compose up -d postgres</span>
+5. В поднятой БД создать схему и таблицы в соответствии с <span style="color:green">/schema_design/db_schema.sql</span>
+6. Заполнить БД данными выполнив скрипт <span style="color:orange">cd sqlite_to_postgres && python load_data.py</span> , для чего в docker-compose.yml для сервиса <span style="color:blue">postgres</span> предварительно открыть наружу соответствующий порт (файл с данными <span style="color:green">db.sqlite</span> взять <a href="https://code.s3.yandex.net/middle-python/learning-materials/db.sqlite">тут</a> и положить в директорию <span style="color:green">/sqlite_to_postgres</span>)
+7. Запустить остальные контейнеры выполнив <span style="color:orange">docker-compose build</span> и <span style="color:orange">docker-compose up -d</span>
+8. <a href="http://0.0.0.0/api/openapi">Перейти</a> к Swagger документации
 
 # Проектная работа 4 спринта
 

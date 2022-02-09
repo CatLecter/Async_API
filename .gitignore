@@ -135,9 +135,5 @@ volumes/
 log/*
 static/
 film_works/
-movies_admin/
-nginx/
-schema_design/
-sqlite_to_postgres/
 .celerybeat-schedule
 *.zip

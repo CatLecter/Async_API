@@ -1,16 +1,12 @@
-import logging
-
 import aioredis
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-# from fastapi.staticfiles import StaticFiles
-from core.config import Settings
+from fastapi.staticfiles import StaticFiles
 
 from api.v1 import film, genre, person
-from core import config
-from core.logger import LOGGING
+from core.config import Settings
 from db import elastic, redis
 
 settings = Settings()
@@ -21,6 +17,8 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.on_event("startup")
@@ -41,7 +39,7 @@ async def shutdown():
     await redis.redis.close()
     await elastic.es.close()
 
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+
 app.include_router(film.router, prefix="/api/v1/film", tags=["film"])
 app.include_router(genre.router, prefix="/api/v1/genre", tags=["genre"])
 app.include_router(person.router, prefix="/api/v1/person", tags=["person"])
