@@ -4,9 +4,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
+from core.config import Settings
 from services.genre import GenreService, get_genre_service
 
 router = APIRouter()
+
+settings = Settings()
 
 
 class Genre(BaseModel):
@@ -22,7 +25,9 @@ async def genre_details(
 ) -> Genre:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genre not found")
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail=settings.GENRES_NOT_FOUND
+        )
     return Genre(
         id=genre.id, name=genre.name, description=genre.description, films=genre.films
     )
@@ -35,9 +40,9 @@ async def search_genre(
     page_number: Optional[int] = Query(default=1),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> dict:
-    genres = await genre_service.search_genres(
-        page_size, page_number, genre
-    )
+    genres = await genre_service.search_genres(page_size, page_number, genre)
     if not genres:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genres not found")
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail=settings.GENRES_NOT_FOUND
+        )
     return genres

@@ -3,8 +3,6 @@ services:
   postgres:
     image: postgres:14.1-alpine3.15
     container_name: postgres
-    ports:
-      - ${POSTGRES_PORT}:5432
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -28,7 +26,6 @@ services:
       - ./movies_admin/film_works/:/usr/src/movies_admin/film_works
     depends_on:
       - postgres
-    command: gunicorn --bind 0.0.0.0:8000 config.wsgi --reload
 
   nginx:
     image: nginx:1.21.4
@@ -41,8 +38,8 @@ services:
     ports:
       - "80:80"
     depends_on:
+      - api
       - admin_panel
-      - postgres
 
   elastic:
     image: elasticsearch:7.16.3
@@ -53,8 +50,6 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - es:/usr/share/elasticsearch/data
-    ports:
-      - ${ELASTIC_PORT}:9200
 
   mongo:
     image: mongo:5.0.5
@@ -65,16 +60,12 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
       - ./volumes/mongo:/data/db
-    ports:
-      - ${MONGO_PORT}:27017
 
   redis:
     image: redis:6.2.6-bullseye
     container_name: redis
     restart: always
     command: redis-server
-    ports:
-      - ${REDIS_PORT}:6379
 
   etl:
     build: ./etl/
@@ -103,12 +94,9 @@ services:
       - ELASTIC_PORT=${ELASTIC_PORT}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-    ports:
-      - "8000:8000"
     depends_on:
       - redis
       - elastic
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
 volumes:
   es:
