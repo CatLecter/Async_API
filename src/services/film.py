@@ -9,7 +9,8 @@ from pydantic import BaseModel, parse_obj_as
 
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models.film import Film, orjson_dumps, orjson_loads
+from models.film import Film
+from models.base import orjson_dumps, orjson_loads
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
