@@ -10,9 +10,16 @@ ENV PYTHONUNBUFFERED 1
 
 # Устанавливаем зависимости
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y gcc netcat && \
+    apt-get install --no-install-recommends -y gcc netcat dos2unix && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Копируем точку входа
+COPY /deploy/admin_panel/entrypoint.sh .
+# Fix права на выполнение (для пользователей unix систем)
+RUN ["chmod", "+x", "entrypoint.sh"]
+# Fix окончания строк (для пользователей win систем)
+RUN dos2unix entrypoint.sh
 
 # Проверка оформления кода
 RUN pip install --upgrade pip
@@ -47,11 +54,8 @@ COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
-
-# Копируем точку входа (необходима, чтобы проверить работоспособность Postgres перед применением миграции
-#  и запуском сервера Django)
-COPY /deploy/admin_panel/entrypoint.sh $HOME
-RUN ["chmod", "+x", "/home/app/entrypoint.sh"]
+# Копируем точку входа
+COPY --from=builder /usr/src/app/entrypoint.sh $HOME
 
 # Копируем демо-данные для проекта
 COPY /deploy/admin_panel/fixtures.json.gz $HOME
