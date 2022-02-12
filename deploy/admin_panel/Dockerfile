@@ -51,6 +51,7 @@ RUN pip install --no-cache /wheels/*
 # Копируем точку входа (необходима, чтобы проверить работоспособность Postgres перед применением миграции
 #  и запуском сервера Django)
 COPY /deploy/admin_panel/entrypoint.sh $HOME
+RUN ["chmod", "+x", "/home/app/entrypoint.sh"]
 
 # Копируем демо-данные для проекта
 COPY /deploy/admin_panel/fixtures.json.gz $HOME
@@ -65,5 +66,4 @@ RUN chown -R app:app $APP_HOME
 USER app
 
 # Запускаем точку входа
-RUN ["chmod", "+x", "/home/app/entrypoint.sh"]
 ENTRYPOINT ["/home/app/entrypoint.sh"]
