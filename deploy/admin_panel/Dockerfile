@@ -65,4 +65,5 @@ RUN chown -R app:app $APP_HOME
 USER app
 
 # Запускаем точку входа
+RUN ["chmod", "+x", "/home/app/entrypoint.sh"]
 ENTRYPOINT ["/home/app/entrypoint.sh"]
