@@ -76,8 +76,6 @@ services:
     build:
       context: .
       dockerfile: deploy/ps_to_es/Dockerfile
-    volumes:
-      - ./src/ps_to_es/:/home/app/etl/
     env_file:
       - deploy/ps_to_es/.env
     depends_on:
