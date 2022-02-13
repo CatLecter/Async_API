@@ -30,7 +30,7 @@ def get_connection() -> Elasticsearch:
         conf = {
             'host': settings.elastic.host,
         }
-        connection = Elasticsearch([conf, ])
+        connection = Elasticsearch([conf])
         logger.debug('Успех!')
         return connection
     except Exception as e:

@@ -9,7 +9,7 @@ def get_logger(logger_name: str, level: Optional[int] = logging.DEBUG) -> loggin
 
     logger = logging.getLogger(logger_name)
     logger.setLevel(level)
-    os.makedirs("logs/", exist_ok=True)
+    os.makedirs('logs/', exist_ok=True)
     handler = RotatingFileHandler(
         f'logs/{logger_name}.log', maxBytes=10 * 1024 * 1024, backupCount=5, encoding='utf-8'
     )

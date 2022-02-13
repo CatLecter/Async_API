@@ -7,17 +7,17 @@ from core.config import NOT_FOUND_MESSAGE
 from models.genre import Genre, GenreBrief
 from services.genre import GenreService, get_genre_service
 
-router = APIRouter(prefix='/genre', tags=['genre'])
+router = APIRouter(prefix='/genres', tags=['Жанры'])
 
 
 @router.get(
-    path='/{genre_uuid}',
+    path='/{uuid}',
     name='Детали жанра',
     description='Получение детальной информации по жанру.',
     response_model=Genre,
 )
 async def genre_details(
-    genre_uuid: str = Query(
+    uuid: str = Query(
         title='UUID жанра',
         default=None,
         description='Поиск жанра по его UUID.',
@@ -25,7 +25,7 @@ async def genre_details(
     ),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> Genre:
-    genre = await genre_service.get_by_uuid(genre_uuid)
+    genre = await genre_service.get_by_uuid(uuid)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=NOT_FOUND_MESSAGE)
     return genre

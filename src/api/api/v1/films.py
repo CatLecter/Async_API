@@ -8,17 +8,17 @@ from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
 from services.film import FilmService, get_film_service
 
-router = APIRouter(prefix='/film', tags=['film'])
+router = APIRouter(prefix='/films', tags=['Фильмы'])
 
 
 @router.get(
-    path='/{film_uuid}',
+    path='/{uuid}',
     name='Детали фильма',
     description='Получение детальной информации по фильму.',
     response_model=Film,
 )
 async def film_details(
-    film_uuid: str = Query(
+    uuid: str = Query(
         title='UUID фильма',
         default=None,
         description='Поиск фильма по его UUID.',
@@ -26,7 +26,7 @@ async def film_details(
     ),
     film_service: FilmService = Depends(get_film_service),
 ) -> Film:
-    film = await film_service.get_by_uuid(film_uuid)
+    film = await film_service.get_by_uuid(uuid)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=NOT_FOUND_MESSAGE)
     return film
