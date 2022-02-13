@@ -88,5 +88,4 @@ target/
 local_settings.py
 
 # Develop
-/docker-compose.dev.yml
 state_storage.json
