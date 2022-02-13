@@ -12,13 +12,13 @@ router = APIRouter(prefix='/persons', tags=['Персоны'])
 
 
 @router.get(
-    path='/{person_uuid}',
+    path='/{uuid}',
     name='Детали персоны',
     description='Получение детальной информации по персоне.',
     response_model=Person,
 )
 async def person_details(
-    person_uuid: str = Query(
+    uuid: str = Query(
         title='UUID фильма',
         default=None,
         description='Поиск фильма по его UUID.',
@@ -26,7 +26,7 @@ async def person_details(
     ),
     person_service: PersonService = Depends(get_person_service),
 ) -> Person:
-    person = await person_service.get_by_uuid(person_uuid)
+    person = await person_service.get_by_uuid(uuid)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=NOT_FOUND_MESSAGE)
     return person
