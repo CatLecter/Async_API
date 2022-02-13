@@ -8,7 +8,7 @@ from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
 from services.film import FilmService, get_film_service
 
-router = APIRouter(prefix='/film', tags=['film'])
+router = APIRouter(prefix='/films', tags=['films'])
 
 
 @router.get(

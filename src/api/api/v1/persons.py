@@ -8,7 +8,7 @@ from models.general import Page
 from models.person import Person, PersonBrief
 from services.person import PersonService, get_person_service
 
-router = APIRouter(prefix='/person', tags=['person'])
+router = APIRouter(prefix='/persons', tags=['persons'])
 
 
 @router.get(

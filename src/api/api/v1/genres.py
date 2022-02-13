@@ -7,7 +7,7 @@ from core.config import NOT_FOUND_MESSAGE
 from models.genre import Genre, GenreBrief
 from services.genre import GenreService, get_genre_service
 
-router = APIRouter(prefix='/genre', tags=['genre'])
+router = APIRouter(prefix='/genres', tags=['genres'])
 
 
 @router.get(
