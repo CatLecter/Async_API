@@ -8,8 +8,15 @@ from core.logger import LOGGING
 logging_config.dictConfig(LOGGING)
 
 # Настройки проекта.
-PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
-NOT_FOUND_MESSAGE = 'object not found'
+PROJECT_NAME = 'Фильмотека'
+PROJECT_DESCRIPTION = 'База данных фильмов.'
+PROJECT_VERSION = '1.0'
+PROJECT_LICENSE_INFO = {
+    "name": "Apache 2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+}
+
+NOT_FOUND_MESSAGE = 'Объект не найден.'
 
 # Настройки Redis
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
