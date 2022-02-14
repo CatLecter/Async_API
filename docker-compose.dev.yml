@@ -10,6 +10,8 @@ services:
       - "80:80"
     depends_on:
       - admin_panel
+      - kibana
+      - api
     networks:
       - movie_network
 
