@@ -10,7 +10,6 @@ from models.person import PersonBrief
 
 class FilmFilterType(str, Enum):
     genre = 'genres'
-    person = 'persons'
     director = 'directors'
     writer = 'writers'
     actor = 'actors'
