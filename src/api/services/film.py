@@ -35,7 +35,7 @@ class FilmService:
         return film_page
 
     @redis_cache_me(
-        key_function=lambda self, sort, filter_type, filter_value, page, size: f'sort:{sort},filter_type:{filter_type},filter_value:{filter_value},page:{page},size:{size}'
+        key_function=lambda self, sort, filter_type, filter_value, page, size: f'sort:{sort.value},filter_type:{filter_type},filter_value:{filter_value},page:{page},size:{size}'
     )
     async def get_sort_filter_page(
         self,
@@ -76,8 +76,8 @@ class FilmService:
                     )
                 )
             if sort:
-                search = search.sort(sort)
-            if filter_type and filter_type in FilmFilterType:
+                search = search.sort(sort.value)
+            if filter_type:
                 if filter_type == FilmFilterType.genre:
                     search = search.query(
                         Nested(path='genres', query=Term(genres__uuid=filter_value))
