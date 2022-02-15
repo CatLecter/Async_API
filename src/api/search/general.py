@@ -24,7 +24,7 @@ class SearchParams(BaseModel):
     page_size: int = 10
 
 
-class AbstractSearchEngine(ABC):
+class SearchEngine(ABC):
     """Класс абстрактного поискового движка."""
 
     @abstractmethod
