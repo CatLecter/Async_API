@@ -55,7 +55,7 @@ async def film_search(
     ),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
-    page = await film_service.get_search_result_page(query, page, size)
+    page = await film_service.search(query, page, size)
     return page
 
 
@@ -97,5 +97,5 @@ async def film_list(
     ),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
-    page = await film_service.get_sort_filter_page(sort, filter_type, filter_value, page, size)
+    page = await film_service.get_sorted_filtered(sort, filter_type, filter_value, page, size)
     return page
