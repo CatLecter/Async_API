@@ -22,6 +22,9 @@ class FilmService:
         """Возвращает фильм по UUID."""
         result = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
 
+        # Возвращать даже один фильм запакованным в поле items это осознанное решение.
+        #  Во-первых, появляется единообразие получения информации с эндпоинтов.
+        #  Во-вторых, к ответу можно будет безболезненно добавлять поля в будущем, если это понадобится.
         film_page = Page(
             items=[Film(**item) for item in result.items],
             total=result.total,
@@ -29,7 +32,7 @@ class FilmService:
         return film_page
 
     async def search(self, query: str, page: int, size: int) -> Page[FilmBrief]:
-        """Ищет фильмы по названию или описанию. Не кеширует результаты, так как вариантов может быть очень много."""
+        """Ищет фильмы по названию или описанию."""
         params = SearchParams(
             query_fields=['title^3', 'description'],
             query_value=query,
