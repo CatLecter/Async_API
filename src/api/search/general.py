@@ -1,38 +1,35 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, List, Optional
+from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
-ResultType = TypeVar('ResultType')
 
-
-class SearchResult(BaseModel, Generic[ResultType]):
+class SearchResult(BaseModel):
     """Ответ поискового движка."""
-    items: List[ResultType]
-    total: int
-    page_number: int
-    page_size: int
+    items: List[Dict]
+    total: int = 0
 
 
 class SearchParams(BaseModel):
     """Параметры поискового запроса."""
-    query: Optional[str]
-    sort: Optional[str]
-    filter_type: Optional[str]
+    query_fields: Optional[List[str]]
+    query_value: Optional[str]
+    sort_field: Optional[str]
+    filter_field: Optional[List[str]]
     filter_value: Optional[str]
     page_number: int = 1
-    page_size: int = 10
+    page_size: int = 20
 
 
-class SearchEngine(ABC, Generic[ResultType]):
+class SearchEngine(ABC):
     """Класс абстрактного поискового движка."""
 
     @abstractmethod
-    def get_by_uuid(self, table: str, uuid: str) -> SearchResult[ResultType]:
-        """Возвращает объект по UUID."""
+    async def get_by_pk(self, table: str, pk: str) -> SearchResult:
+        """Возвращает объект по ключу."""
         pass
 
     @abstractmethod
-    def search(self, table: str, params: SearchParams) -> SearchResult[ResultType]:
+    async def search(self, table: str, params: SearchParams) -> SearchResult:
         """Возвращает объекты подходящие под параметры поиска."""
         pass
