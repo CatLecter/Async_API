@@ -15,7 +15,7 @@ router = APIRouter(prefix='/films', tags=['Фильмы'])
     path='/{uuid}',
     name='Детали фильма',
     description='Получение детальной информации по фильму.',
-    response_model=Film,
+    response_model=Page[Film],
 )
 async def film_details(
     uuid: str = Query(
@@ -25,11 +25,11 @@ async def film_details(
         example='4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f',
     ),
     film_service: FilmService = Depends(get_film_service),
-) -> Film:
-    film = await film_service.get_by_uuid(uuid)
-    if not film:
+) -> Page[Film]:
+    result = await film_service.get_by_uuid(uuid)
+    if result.total == 0:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=NOT_FOUND_MESSAGE)
-    return film
+    return result
 
 
 @router.get(
