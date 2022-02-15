@@ -24,15 +24,15 @@ class SearchParams(BaseModel):
     page_size: int = 10
 
 
-class SearchEngine(ABC):
+class SearchEngine(ABC, Generic[ResultType]):
     """Класс абстрактного поискового движка."""
 
     @abstractmethod
-    def get_by_uuid(self, table: str, uuid: str) -> SearchResult:
+    def get_by_uuid(self, table: str, uuid: str) -> SearchResult[ResultType]:
         """Возвращает объект по UUID."""
         pass
 
     @abstractmethod
-    def search(self, table: str, params: SearchParams) -> SearchResult:
+    def search(self, table: str, params: SearchParams) -> SearchResult[ResultType]:
         """Возвращает объекты подходящие под параметры поиска."""
         pass
