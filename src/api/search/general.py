@@ -15,7 +15,7 @@ class SearchParams(BaseModel):
     query_fields: Optional[List[str]]
     query_value: Optional[str]
     sort_field: Optional[str]
-    filter_field: Optional[List[str]]
+    filter_field: Optional[str]
     filter_value: Optional[str]
     page_number: int = 1
     page_size: int = 20
