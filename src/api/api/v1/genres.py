@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from core.config import NOT_FOUND_MESSAGE
+from core.endpoints_params import *
 from models.general import Page
 from models.genre import Genre, GenreBrief
 from services.genre import GenreService
@@ -18,12 +19,7 @@ router = APIRouter(prefix='/genres', tags=['Жанры'])
     response_model=Genre,
 )
 async def genre_details(
-    uuid: str = Query(
-        title='UUID жанра',
-        default=None,
-        description='Поиск жанра по его UUID.',
-        example='2f89e116-4827-4ff4-853c-b6e058f71e31',
-    ),
+    uuid: str = Query(**DEFAULT_UUID),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> Genre:
     genre = await genre_service.get_by_uuid(uuid)
@@ -39,7 +35,8 @@ async def genre_details(
     response_model=Page[GenreBrief],
 )
 async def genre_list(
+    query: str = Query(**DEFAULT_QUERY),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> Page[GenreBrief]:
-    page = await genre_service.search()
+    page = await genre_service.search(query=query)
     return page

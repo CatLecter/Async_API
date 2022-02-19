@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from core.config import NOT_FOUND_MESSAGE
+from core.endpoints_params import *
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
 from services.film import FilmService
@@ -19,13 +20,7 @@ router = APIRouter(prefix='/films', tags=['Фильмы'])
     response_model=Film,
 )
 async def film_details(
-    uuid: str = Query(
-        title='UUID фильма',
-        default=None,
-        description='Поиск фильма по его UUID.',
-        example='4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f',
-    ),
-    film_service: FilmService = Depends(get_film_service),
+    uuid: str = Query(**DEFAULT_UUID), film_service: FilmService = Depends(get_film_service),
 ) -> Film:
     result = await film_service.get_by_uuid(uuid)
     if not result:
@@ -40,20 +35,9 @@ async def film_details(
     response_model=Page[FilmBrief],
 )
 async def film_search(
-    query: str = Query(
-        title='Поиск', default=None, description='Поиск по тексту.', example='Captain',
-    ),
-    page_number: Optional[int] = Query(
-        alias='page[number]', title='Страница', default=1, ge=1, description='Номер страницы.',
-    ),
-    page_size: Optional[int] = Query(
-        alias='page[size]',
-        title='Размер',
-        default=20,
-        ge=1,
-        le=100,
-        description='Результатов на странице.',
-    ),
+    query: str = Query(**DEFAULT_QUERY),
+    page_number: Optional[int] = Query(**DEFAULT_PAGE_NUMBER),
+    page_size: Optional[int] = Query(**DEFAULT_PAGE_SIZE),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
     page = await film_service.search(query, page_number, page_size)
@@ -67,35 +51,11 @@ async def film_search(
     response_model=Page[FilmBrief],
 )
 async def film_list(
-    sort: Optional[FilmSortingType] = Query(
-        title='Сортировка',
-        default=None,
-        description='Критерий сортировки.',
-        example=FilmSortingType.imdb_rating_desc,
-    ),
-    filter_type: Optional[FilmFilterType] = Query(
-        default=None,
-        title='Тип фильтрации',
-        description='Выберите тип фильтрации из предложенных.',
-        example='genres',
-    ),
-    filter_value: Optional[str] = Query(
-        default=None,
-        title='Значение для фильтрации',
-        description='UUID для сортировки по выбранному типу.',
-        example='0b105f87-e0a5-45dc-8ce7-f8632088f390',
-    ),
-    page_number: Optional[int] = Query(
-        alias='page[number]', title='Страница', default=1, ge=1, description='Номер страницы.',
-    ),
-    page_size: Optional[int] = Query(
-        alias='page[size]',
-        title='Размер',
-        default=20,
-        ge=1,
-        le=100,
-        description='Результатов на странице.',
-    ),
+    sort: Optional[FilmSortingType] = Query(**DEFAULT_FILM_SORT),
+    filter_type: Optional[FilmFilterType] = Query(**DEFAULT_FILM_FILTER_TYPE),
+    filter_value: Optional[str] = Query(**DEFAULT_FILM_FILTER_VALUE),
+    page_number: Optional[int] = Query(**DEFAULT_PAGE_NUMBER),
+    page_size: Optional[int] = Query(**DEFAULT_PAGE_SIZE),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
     page = await film_service.get_sorted_filtered(
