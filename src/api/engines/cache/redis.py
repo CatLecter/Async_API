@@ -4,10 +4,10 @@ from typing import Any
 
 from aioredis import Redis
 
-from engines.cache.general import AbstractCache
+from engines.cache.general import CacheEngine
 
 
-class RedisCache(AbstractCache):
+class RedisCacheEngine(CacheEngine):
     """
     Реализация кеширования на основе сервиса Redis.
     """

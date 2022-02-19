@@ -1,9 +1,9 @@
 from typing import Any
 
-from engines.cache.general import AbstractCache
+from engines.cache.general import CacheEngine
 
 
-class DummyCache(AbstractCache):
+class DummyCacheEngine(CacheEngine):
     """
     Класс заглушка не осуществляющий реального кэширования.
     """
