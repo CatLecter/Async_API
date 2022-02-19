@@ -1,12 +1,14 @@
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MultiMatch, Term, Nested
+from elasticsearch_dsl.query import MultiMatch, Nested, Term
 
-from search.general import SearchEngine, SearchParams, SearchResult
+from engines.search.general import SearchEngine, SearchParams, SearchResult
 
 
 class ElasticSearchEngine(SearchEngine):
-    """Класс поискового движка ElasticSearch."""
+    """
+    Класс поискового движка ElasticSearch.
+    """
 
     def __init__(self, service: AsyncElasticsearch):
         self.elastic = service
@@ -39,7 +41,10 @@ class ElasticSearchEngine(SearchEngine):
                 search = search.sort(params.sort_field)
             if params.filter_field:
                 search = search.query(
-                    Nested(path=params.filter_field, query=Term(**{f'{params.filter_field}__uuid': params.filter_value}))
+                    Nested(
+                        path=params.filter_field,
+                        query=Term(**{f'{params.filter_field}__uuid': params.filter_value}),
+                    )
                 )
             start = (params.page_number - 1) * params.page_size
             end = start + params.page_size

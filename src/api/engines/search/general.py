@@ -1,17 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
 
 class SearchResult(BaseModel):
-    """Ответ поискового движка."""
+    """
+    Ответ поискового движка.
+    """
+
     items: List[Dict]
     total: int = 0
 
 
 class SearchParams(BaseModel):
-    """Параметры поискового запроса."""
+    """
+    Параметры поискового запроса.
+    """
+
     query_fields: Optional[List[str]]
     query_value: Optional[str]
     sort_field: Optional[str]
@@ -22,10 +28,12 @@ class SearchParams(BaseModel):
 
 
 class SearchEngine(ABC):
-    """Класс абстрактного поискового движка."""
+    """
+    Класс абстрактного поискового движка.
+    """
 
     @abstractmethod
-    async def get_by_pk(self, table: str, pk: str) -> SearchResult:
+    async def get_by_pk(self, table: str, pk: str) -> Dict:
         """Возвращает объект по ключу."""
         pass
 
