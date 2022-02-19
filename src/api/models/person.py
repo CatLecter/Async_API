@@ -13,6 +13,23 @@ class PersonRoleType(str, Enum):
     actor = 'actor'
 
 
+class PersonFilm(FastJsonModel):
+    """Фильм с участием персоны."""
+
+    uuid: str = Field(
+        title='UUID фильма', example='4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f',
+    )
+    title: str = Field(
+        title='Заголовок фильма', max_length=255, example='Star Trek',
+    )
+    imdb_rating: Optional[float] = Field(
+        title='IMDb рейтинг фильма', ge=0, le=10, example=7.9,
+    )
+    role: PersonRoleType = Field(
+        title='Роль', max_length=25, example=PersonRoleType.actor,
+    )
+
+
 class PersonBrief(FastJsonModel):
     """Персона фильма (основная информация)."""
 
@@ -27,22 +44,7 @@ class PersonBrief(FastJsonModel):
 class Person(PersonBrief):
     """Персона фильма."""
 
-    class PersonFilm(FastJsonModel):
-        """Фильм с участием персоны."""
-
-        uuid: str = Field(
-            title='UUID фильма', example='4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f',
-        )
-        title: str = Field(
-            title='Заголовок фильма', max_length=255, example='Star Trek',
-        )
-        imdb_rating: Optional[float] = Field(
-            title='IMDb рейтинг фильма', ge=0, le=10, example=7.9,
-        )
-        role: PersonRoleType = Field(
-            title='Роль', max_length=25, example=PersonRoleType.actor,
-        )
-
+    ...
     birth_date: Optional[datetime.date] = Field(
         title='Дата рождения', example='1989-05-31',
     )

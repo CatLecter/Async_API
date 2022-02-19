@@ -1,4 +1,4 @@
-from typing import Generic, List, TypeVar
+from typing import Generic, List, Optional, TypeVar
 
 import orjson
 from pydantic import BaseModel, Field
@@ -26,12 +26,12 @@ class Page(FastJsonModel, Generic[PT]):
         default=[], title='Список объектов',
     )
 
-    total: int = Field(
-        title='Всего объектов', default=0, example=35,
+    total: Optional[int] = Field(
+        title='Всего объектов', example=35,
     )
-    page: int = Field(
-        title='Номер страницы', default=1, example=1,
+    page_number: Optional[int] = Field(
+        title='Номер страницы', example=1,
     )
-    size: int = Field(
-        title='Объектов на странице', default=20, example=20,
+    page_size: Optional[int] = Field(
+        title='Объектов на странице', example=20,
     )

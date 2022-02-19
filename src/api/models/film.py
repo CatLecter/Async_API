@@ -37,11 +37,11 @@ class FilmBrief(FastJsonModel):
 class Film(FilmBrief):
     """Фильм."""
 
+    ...
     description: Optional[str] = Field(
         title='Описание фильма',
         example="On the day of James Kirk's birth, his father dies on his damaged starship...",
     )
-
     genres: List[GenreBrief] = Field(
         default=[],
         title='Жанры',
@@ -50,7 +50,6 @@ class Film(FilmBrief):
             GenreBrief(uuid='6c162475-c7ed-4461-9184-001ef3d9f26e', name='Sci-Fi'),
         ],
     )
-
     directors: List[PersonBrief] = Field(
         default=[],
         title='Режиссеры',

@@ -19,6 +19,7 @@ class GenreBrief(FastJsonModel):
 class Genre(GenreBrief):
     """Жанр фильма."""
 
+    ...
     description: Optional[str] = Field(
         title='Описание жанра',
         example='Thriller is a genre of fiction, having numerous, often overlapping subgenres. Thrillers are characterized...',
