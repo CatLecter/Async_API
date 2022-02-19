@@ -14,7 +14,7 @@ class RedisCacheEngine(CacheEngine):
 
     def __init__(self, redis: Redis, ttl: timedelta = 60):
         self.redis = redis
-        self.expire = ttl.total_seconds()
+        self.expire = int(ttl.total_seconds())
 
     async def save_to_cache(self, cache_key: str, data: Any) -> None:
         """Сохраняет данные в кэш."""
