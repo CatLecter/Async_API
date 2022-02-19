@@ -5,11 +5,35 @@ services:
     build: .
     container_name: tests
 
+  elastic:
+    image: elasticsearch:7.7.0
+    environment:
+      - cluster.name=movies-elasticsearch-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    expose:
+      - 9200
+    networks:
+      - movie_network
+
+
+  redis:
+    image: redis:6.2.6-alpine
+    expose:
+      - 6379
+    networks:
+      - movie_network
+
+
 volumes:
-  postgres_data:
   elasticsearch_data:
-  static_volume:
-  media_volume:
 
 networks:
   movie_network:
