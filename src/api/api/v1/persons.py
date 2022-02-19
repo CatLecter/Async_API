@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from core.config import NOT_FOUND_MESSAGE
 from models.general import Page
 from models.person import Person, PersonBrief
-from services.person import PersonService, get_person_service
+from services.getters import get_person_service
+from services.person import PersonService
 
 router = APIRouter(prefix='/persons', tags=['Персоны'])
 
@@ -42,18 +43,18 @@ async def person_search(
     query: str = Query(
         title='Поиск', default=None, description='Поиск по тексту.', example='Captain',
     ),
-    page: Optional[int] = Query(
+    page_number: Optional[int] = Query(
         alias='page[number]', title='Страница', default=1, ge=1, description='Номер страницы.',
     ),
-    size: Optional[int] = Query(
+    page_size: Optional[int] = Query(
         alias='page[size]',
         title='Размер',
         default=20,
         ge=1,
-        le=50,
+        le=100,
         description='Результатов на странице.',
     ),
     person_service: PersonService = Depends(get_person_service),
 ) -> Page[PersonBrief]:
-    page = await person_service.get_search_result_page(query, page, size)
+    page = await person_service.search(query, page_number, page_size)
     return page
