@@ -1,9 +1,13 @@
 import asyncio
 from time import sleep
+from log_utils import get_logger
+import logging
 
 import aioredis
 
 from functional.settings import config
+
+logger = get_logger(__name__)
 
 
 async def wait():
@@ -22,5 +26,5 @@ if __name__ == "__main__":
         try:
             result = asyncio.run(wait())
         except Exception:
-            print('sleep')
+            logger.log(logging.DEBUG, 'sleep')
             sleep(1)
