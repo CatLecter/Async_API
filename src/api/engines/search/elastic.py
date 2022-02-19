@@ -27,6 +27,8 @@ class ElasticSearchEngine(SearchEngine):
         """Возвращает объекты подходящие под параметры поиска."""
         try:
             search = Search(using=self.elastic)
+
+            # Поиск по тексту
             if params.query_fields:
                 search = search.query(
                     MultiMatch(
@@ -36,8 +38,12 @@ class ElasticSearchEngine(SearchEngine):
                         fuzziness='AUTO',
                     )
                 )
+
+            # Сортировка
             if params.sort_field:
                 search = search.sort(params.sort_field)
+
+            # Фильтрация
             if params.filter_field:
                 search = search.query(
                     Nested(
@@ -45,10 +51,13 @@ class ElasticSearchEngine(SearchEngine):
                         query=Term(**{f'{params.filter_field}__uuid': params.filter_value}),
                     )
                 )
+
+            # Пагинация
             if params.page_number and params.page_size:
                 start = (params.page_number - 1) * params.page_size
                 end = start + params.page_size
                 search = search[start:end]
+
             body = search.to_dict()
             docs = await self.elastic.search(index=table, body=body)
         except NotFoundError:
