@@ -26,3 +26,10 @@ async def redis_connect():
         (config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20
     )
     logger.info('Successfully connected to redis server.')
+
+
+async def redis_disconnect():
+    """Закрывает подключение к сервису Redis."""
+    global redis
+    await redis.wait_closed()
+    logger.info('Successfully disconnected from redis server.')

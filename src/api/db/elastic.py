@@ -26,3 +26,10 @@ async def elastic_connect():
     if not result:
         raise ConnectionError('The ElasticSearch server is not responding.')
     logger.info('Successfully connected to elasticsearch server.')
+
+
+async def elastic_disconnect():
+    """Закрывает подключение к сервису ElasticSearch."""
+    global es
+    await es.close()
+    logger.info('Successfully disconnected from elasticsearch server.')

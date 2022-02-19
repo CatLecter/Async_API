@@ -6,9 +6,8 @@ from fastapi.responses import ORJSONResponse
 
 import api
 from core import config
-from db import elastic, redis
-from db.elastic import elastic_connect
-from db.redis import redis_connect
+from db.elastic import elastic_connect, elastic_disconnect
+from db.redis import redis_connect, redis_disconnect
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -32,7 +31,7 @@ async def startup():
 @app.on_event('shutdown')
 async def shutdown():
     await asyncio.gather(
-        redis.redis.close(), elastic.es.close(),
+        redis_disconnect(), elastic_disconnect(),
     )
 
 
