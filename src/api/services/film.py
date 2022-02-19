@@ -1,84 +1,76 @@
-from functools import lru_cache
+from typing import Optional
 
-from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
-from db.elastic import get_elastic
-from db.redis import get_redis
+from engines.cache.general import CacheEngine
+from engines.search.general import SearchEngine, SearchParams
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
-from search.elastic import ElasticSearchEngine
-from search.general import SearchEngine, SearchParams
 
 
 class FilmService:
-    def __init__(self, redis: Redis, search_engine: SearchEngine):
+    def __init__(self, cache_engine: CacheEngine, search_engine: SearchEngine):
         self.table = 'movies'
-        self.redis = redis
+        self.cache_engine = cache_engine
         self.search_engine = search_engine
 
-    async def get_by_uuid(self, uuid: str) -> Page[Film]:
+    async def get_by_uuid(self, uuid: str) -> Optional[Film]:
         """Возвращает фильм по UUID."""
-        result = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
+        cache_key = f'{self.table}:get_by_uuid(uuid={uuid})'
 
-        # Возвращать даже один фильм запакованным в поле items это осознанное решение.
-        #  Во-первых, появляется единообразие получения информации с эндпоинтов.
-        #  Во-вторых, к ответу можно будет безболезненно добавлять поля в будущем, если это понадобится.
-        film_page = Page(
-            items=[Film(**item) for item in result.items],
-            total=result.total,
-        )
-        return film_page
+        data = await self.cache_engine.load_from_cache(cache_key)
+        if not data:
+            data = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
+            if not data:
+                return None
+            await self.cache_engine.save_to_cache(cache_key, data)
 
-    async def search(self, query: str, page: int, size: int) -> Page[FilmBrief]:
-        """Ищет фильмы по названию или описанию."""
+        return Film(**data)
+
+    async def search(self, query: str, page_number: int, page_size: int) -> Page[FilmBrief]:
+        """Ищет фильмы по названию или описанию. Не кеширует результаты, так как вариантов может быть очень много."""
         params = SearchParams(
             query_fields=['title^3', 'description'],
             query_value=query,
-            page_number=page,
-            page_size=size,
+            page_number=page_number,
+            page_size=page_size,
         )
+
         search_results = await self.search_engine.search(table=self.table, params=params)
 
-        film_page = Page(
+        data_page = Page(
             items=[FilmBrief(**item) for item in search_results.items],
             total=search_results.total,
-            page=page,
-            size=size,
+            page_number=page_number,
+            page_size=page_size,
         )
-        return film_page
+        return data_page
 
     async def get_sorted_filtered(
         self,
         sort: FilmSortingType,
         filter_field: FilmFilterType,
         filter_value: str,
-        page: int,
-        size: int,
+        page_number: int,
+        page_size: int,
     ) -> Page[FilmBrief]:
         """Возвращает список фильмов с фильтрацией и сортировкой."""
+        cache_key = f'{self.table}:get_sorted_filtered(sort={sort.value},filter_field={filter_field.value},filter_value={filter_value},page_number={page_number},page_size={page_size}))'
         params = SearchParams(
             sort_field=sort.value,
             filter_field=filter_field.value,
             filter_value=filter_value,
-            page_number=page,
-            page_size=size,
+            page_number=page_number,
+            page_size=page_size,
         )
-        search_results = await self.search_engine.search(table=self.table, params=params)
 
-        film_page = Page(
+        search_results = await self.cache_engine.load_from_cache(cache_key)
+        if not search_results:
+            search_results = await self.search_engine.search(table=self.table, params=params)
+            await self.cache_engine.save_to_cache(cache_key, search_results)
+
+        data_page = Page(
             items=[FilmBrief(**item) for item in search_results.items],
             total=search_results.total,
-            page=page,
-            size=size,
+            page_number=page_number,
+            page_size=page_size,
         )
-        return film_page
-
-
-@lru_cache()
-def get_film_service(
-    redis: Redis = Depends(get_redis), elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
-    search_engine = ElasticSearchEngine(elastic)
-    return FilmService(redis, search_engine)
+        return data_page

@@ -1,70 +1,45 @@
-from functools import lru_cache
 from typing import Optional
 
-from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match
-from fastapi import Depends
-
-from db.elastic import get_elastic
-from db.redis import get_redis, redis_cache_me
+from engines.cache.general import CacheEngine
+from engines.search.general import SearchEngine, SearchParams
 from models.general import Page
 from models.person import Person, PersonBrief
 
 
 class PersonService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+    def __init__(self, cache_engine: CacheEngine, search_engine: SearchEngine):
+        self.table = 'persons'
+        self.cache_engine = cache_engine
+        self.search_engine = search_engine
 
-    @redis_cache_me(key_function=lambda self, person_uuid: f'person_uuid:{person_uuid}')
-    async def get_by_uuid(self, person_uuid: str) -> Optional[Person]:
+    async def get_by_uuid(self, uuid: str) -> Optional[Person]:
         """Возвращает персону по UUID."""
-        try:
-            doc = await self.elastic.get(index='persons', id=person_uuid)
-        except NotFoundError:
-            return None
-        return Person(**doc['_source'])
+        cache_key = f'{self.table}:get_by_uuid(uuid={uuid})'
 
-    async def get_search_result_page(
-        self, query: str, page: int, size: int
-    ) -> Page[PersonBrief]:
+        data = await self.cache_engine.load_from_cache(cache_key)
+        if not data:
+            data = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
+            if not data:
+                return None
+            await self.cache_engine.save_to_cache(cache_key, data)
+
+        return Person(**data)
+
+    async def search(self, query: str, page_number: int, page_size: int) -> Page[PersonBrief]:
         """Ищет персон по имени. Не кеширует результаты, так как вариантов может быть очень много."""
-        person_page = await self._get_person_page_from_elastic(
-            query=query, page=page, size=size,
-        )
-        return person_page
-
-    async def _get_person_page_from_elastic(
-        self, query: str = None, page: int = None, size: int = None,
-    ) -> Page[PersonBrief]:
-        try:
-            search = Search(using=self.elastic)
-            if query:
-                search = search.query(
-                    Match(full_name={'query': query, 'fuzziness': 'AUTO', 'operator': 'and'})
-                )
-            start = (page - 1) * size
-            end = start + size
-            search = search[start:end]
-            body = search.to_dict()
-            docs = await self.elastic.search(index='persons', body=body)
-        except NotFoundError:
-            return Page()
-
-        person_page = Page(
-            items=[PersonBrief(**doc['_source']) for doc in docs['hits']['hits']],
-            total=docs['hits']['total']['value'],
-            page=page,
-            size=size,
+        params = SearchParams(
+            query_fields=['full_name'],
+            query_value=query,
+            page_number=page_number,
+            page_size=page_size,
         )
 
-        return person_page
+        search_results = await self.search_engine.search(table=self.table, params=params)
 
-
-@lru_cache()
-def get_person_service(
-    redis: Redis = Depends(get_redis), elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> PersonService:
-    return PersonService(redis, elastic)
+        data_page = Page(
+            items=[PersonBrief(**item) for item in search_results.items],
+            total=search_results.total,
+            page_number=page_number,
+            page_size=page_size,
+        )
+        return data_page
