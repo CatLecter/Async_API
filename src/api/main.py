@@ -25,16 +25,14 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     await asyncio.gather(
-        redis_connect(),
-        elastic_connect(),
+        redis_connect(), elastic_connect(),
     )
 
 
 @app.on_event('shutdown')
 async def shutdown():
     await asyncio.gather(
-        redis.redis.close(),
-        elastic.es.close(),
+        redis.redis.close(), elastic.es.close(),
     )
 
 
