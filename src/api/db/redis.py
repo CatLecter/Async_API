@@ -2,9 +2,11 @@ import logging
 from typing import Optional
 
 import aioredis.errors
+import backoff
 from aioredis import Redis
 
 from core import config
+from core.utils import backoff_hdlr
 
 logger = logging.getLogger(__name__)
 redis: Optional[Redis] = None
@@ -16,6 +18,7 @@ async def get_redis() -> Redis:
     return redis
 
 
+@backoff.on_exception(backoff.expo, ConnectionError, on_backoff=backoff_hdlr)
 async def redis_connect():
     """Устанавливает подключение к сервису Redis."""
     global redis
