@@ -8,3 +8,4 @@ uvicorn==0.12.2
 uvloop==0.16.0
 
 elasticsearch_dsl==7.4.0
+backoff~=1.11.1
