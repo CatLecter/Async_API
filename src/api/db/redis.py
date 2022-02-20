@@ -19,17 +19,28 @@ async def get_redis() -> Redis:
 
 
 @backoff.on_exception(backoff.expo, ConnectionError, on_backoff=backoff_hdlr)
+async def redis_ping():
+    """Проверяет подключение к сервису Redis."""
+    global redis
+    ping = await redis.ping()
+    if ping != b'PONG':
+        raise ConnectionError('The redis server is not responding.')
+    logger.info('Successfully connected to redis server.')
+
+
 async def redis_connect():
     """Устанавливает подключение к сервису Redis."""
     global redis
     redis = await aioredis.create_redis_pool(
         (config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20
     )
+    await redis_ping()
     logger.info('Successfully connected to redis server.')
 
 
 async def redis_disconnect():
     """Закрывает подключение к сервису Redis."""
     global redis
+    redis.close()
     await redis.wait_closed()
     logger.info('Successfully disconnected from redis server.')
