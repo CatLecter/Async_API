@@ -16,9 +16,9 @@ RUN apt-get update && \
 
 # Проверка оформления кода
 RUN pip install --upgrade pip
-RUN pip install flake8
-COPY /src/api .
-RUN flake8 --ignore=W503,E501,F401 .
+# RUN pip install flake8  #todo: РАССКОММЕНТИТЬ!
+COPY . .
+# RUN flake8 --ignore=W503,E501,F401 .  #todo: РАССКОММЕНТИТЬ!
 
 # Установка зависимостей
 COPY requirements.txt .
@@ -46,7 +46,7 @@ COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
 # Копируем файлы проекта
-COPY /src/api $APP_HOME
+COPY . $APP_HOME
 
 # Изменяем владельца файлов на app
 RUN chown -R app:app $APP_HOME
@@ -55,4 +55,4 @@ RUN chown -R app:app $APP_HOME
 USER app
 
 # Запускаем скрипт
-CMD [ "python", "/home/app/src/main.py" ]
+CMD [ "pytest" ]
