@@ -1,19 +1,21 @@
 import json
-from pathlib import Path
-from typing import Dict
+
+from elasticsearch import AsyncElasticsearch
+
+from tests.functional.settings import config
 
 
-class ElasticHelper:
-    def __init__(self, es_client):
-        self.es_client = es_client
+class ESHelper:
+    def __init__(self) -> None:
+        self.client = AsyncElasticsearch(hosts=f"{config.ELASTIC_HOST}:{config.ELASTIC_PORT}")
 
-    async def create_index_from_file(self, index_name: str, file_path: str):
-        """Создание индекса ElasticSearch из json-файла."""
-        index_path = Path(file_path)
-        with index_path.open(mode='r', encoding='utf-8') as json_file:
-            index_body = json.load(json_file)
-        await self.create_index(index_name, index_body)
+    def get_client(self) -> AsyncElasticsearch:
+        return self.client
 
-    async def create_index(self, index_name: str, index_body: Dict):
-        """Создание индекса ElasticSearch."""
-        await self.es_client.indices.create(index=index_name, body=index_body, ignore=400)
+    async def create_index(self, name_index: str, file_index: str):
+        async with open(f"testdata/{file_index}.json", "r", encoding="utf-8") as f:
+            index_data = json.load(f)
+            await self.client.indices.create(index=name_index, body=index_data, ignore=400)
+
+    async def delete_index(self, name_index: str):
+        await self.client.indices.delete(index=name_index, ignore=[400, 404])
