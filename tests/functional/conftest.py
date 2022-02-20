@@ -6,10 +6,10 @@ import pytest
 from elasticsearch import AsyncElasticsearch
 from multidict import CIMultiDictProxy
 
-
 SERVICE_URL = 'http://127.0.0.1:8000'
 ELASTIC_HOST = os.getenv('ELASTIC_HOST', 'elastic')
 ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
+
 
 @dataclass
 class HTTPResponse:
@@ -45,6 +45,11 @@ def make_get_request(session):
             )
 
     return inner
+
+
+async def create_es_index(es_client, index_body):
+    """Создание индекса ElasticSearch."""
+    await es_client.indices.create(index=index_name, body=index_body, ignore=400)
 
 
 
@@ -95,7 +100,7 @@ def make_get_request(session):
 #     for index in indices.keys():
 #         await es_client.indices.delete(index=index)
 #     await snapshots.delete_repository(repository=settings.es_snapshot_repo)
-#
+
 #
 #
 #
@@ -106,10 +111,7 @@ def make_get_request(session):
 #     return json_data
 #
 #
-# async def create_index(es_client, index_name):
-#     index_path = settings.es_schemes_dir.joinpath(f"{index_name}.json")
-#     index = read_json_file(index_path)
-#     await es_client.indices.create(index=index_name, body=index, ignore=400)
+
 #
 #
 # async def load_data_in_index(es_client, index_name):
