@@ -1,51 +1,50 @@
-# from dataclasses import dataclass
-#
-# import aiohttp
-# import pytest
-# from elasticsearch import AsyncElasticsearch
-# from multidict import CIMultiDictProxy
-#
-# from functional.settings import config
-# from log_utils import get_logger
-#
-# logger = get_logger(__name__)
-#
-# SERVICE_URL = 'http://127.0.0.1:8000'
-#
-# @dataclass
-# class HTTPResponse:
-#     body: dict
-#     headers: CIMultiDictProxy[str]
-#     status: int
-#
-#
-# @pytest.fixture(scope='session')
-# async def session():
-#     session = aiohttp.ClientSession()
-#     yield session
-#     await session.close()
-#
-#
-# @pytest.fixture(scope="session")
-# async def es_client():
-#     host = f"{config.ELASTIC_HOST}:{config.ELASTIC_PORT}"
-#     client = AsyncElasticsearch(hosts=host)
-#     yield client
-#     await client.close()
-#
-#
-# @pytest.fixture
-# def make_get_request(session):
-#     async def inner(method: str, params: dict = None) -> HTTPResponse:
-#         url = SERVICE_URL + '/api/v1' + method
-#         async with session.get(url, params=params) as response:
-#             return HTTPResponse(
-#                 body=await response.json(),
-#                 headers=response.headers,
-#                 status=response.status,
-#             )
-#
-#     return inner
+from dataclasses import dataclass
+import os
+
+import aiohttp
+import pytest
+from elasticsearch import AsyncElasticsearch
+from multidict import CIMultiDictProxy
+
+
+SERVICE_URL = 'http://127.0.0.1:8000'
+ELASTIC_HOST = os.getenv('ELASTIC_HOST', 'elastic')
+ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
+
+@dataclass
+class HTTPResponse:
+    body: dict
+    headers: CIMultiDictProxy[str]
+    status: int
+
+
+@pytest.fixture(scope='session')
+async def session():
+    session = aiohttp.ClientSession()
+    yield session
+    await session.close()
+
+
+@pytest.fixture(scope="session")
+async def es_client():
+    host = f"{ELASTIC_HOST}:{ELASTIC_PORT}"
+    client = AsyncElasticsearch(hosts=host)
+    yield client
+    await client.close()
+
+
+@pytest.fixture
+def make_get_request(session):
+    async def inner(method: str, params: dict = None) -> HTTPResponse:
+        url = SERVICE_URL + '/api/v1' + method
+        async with session.get(url, params=params) as response:
+            return HTTPResponse(
+                body=await response.json(),
+                headers=response.headers,
+                status=response.status,
+            )
+
+    return inner
 
 
 

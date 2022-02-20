@@ -1,30 +1,32 @@
 import asyncio
-from time import sleep
-from log_utils import get_logger
-import logging
+import os
 
 import aioredis
+import backoff
 
-from functional.settings import config
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 
-logger = get_logger(__name__)
 
-
-async def wait():
-    redis = await aioredis.create_redis_pool(
-        (config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20
-    )
+@backoff.on_exception(backoff.expo, ConnectionError, max_time=30)
+async def redis_ping(redis):
+    """Проверяет подключение к сервису Redis."""
     ping = await redis.ping()
-    if b'PONG' == ping:
-        return True
-    return None
+    if ping != b'PONG':
+        raise ConnectionError('WAIT_FOR_REDIS: The redis server is not responding.')
+    print('WAIT_FOR_REDIS: Successfully connected to redis server.')
 
 
-if __name__ == "__main__":
-    result = False
-    while not result:
-        try:
-            result = asyncio.run(wait())
-        except Exception:
-            logger.log(logging.DEBUG, 'sleep')
-            sleep(1)
+async def main():
+    print('WAIT_FOR_REDIS: Check connection to redis server.')
+    redis = await aioredis.create_redis_pool(
+        (REDIS_HOST, REDIS_PORT), minsize=10, maxsize=20
+    )
+    await redis_ping(redis)
+    redis.close()
+    await redis.wait_closed()
+    print('WAIT_FOR_REDIS: Successfully disconnected from redis server.')
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
