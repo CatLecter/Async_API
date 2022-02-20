@@ -3,10 +3,12 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from core import endpoints_params as ep_params
 from core.config import NOT_FOUND_MESSAGE
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
-from services.film import FilmService, get_film_service
+from services.film import FilmService
+from services.getters import get_film_service
 
 router = APIRouter(prefix='/films', tags=['Фильмы'])
 
@@ -18,18 +20,13 @@ router = APIRouter(prefix='/films', tags=['Фильмы'])
     response_model=Film,
 )
 async def film_details(
-    uuid: str = Query(
-        title='UUID фильма',
-        default=None,
-        description='Поиск фильма по его UUID.',
-        example='4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f',
-    ),
+    uuid: str = Query(**ep_params.DEFAULT_UUID),
     film_service: FilmService = Depends(get_film_service),
 ) -> Film:
-    film = await film_service.get_by_uuid(uuid)
-    if not film:
+    result = await film_service.get_by_uuid(uuid)
+    if not result:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=NOT_FOUND_MESSAGE)
-    return film
+    return result
 
 
 @router.get(
@@ -39,23 +36,12 @@ async def film_details(
     response_model=Page[FilmBrief],
 )
 async def film_search(
-    query: str = Query(
-        title='Поиск', default=None, description='Поиск по тексту.', example='Captain',
-    ),
-    page: Optional[int] = Query(
-        alias='page[number]', title='Страница', default=1, ge=1, description='Номер страницы.',
-    ),
-    size: Optional[int] = Query(
-        alias='page[size]',
-        title='Размер',
-        default=20,
-        ge=1,
-        le=50,
-        description='Результатов на странице.',
-    ),
+    query: str = Query(**ep_params.DEFAULT_QUERY),
+    page_number: Optional[int] = Query(**ep_params.DEFAULT_PAGE_NUMBER),
+    page_size: Optional[int] = Query(**ep_params.DEFAULT_PAGE_SIZE),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
-    page = await film_service.get_search_result_page(query, page, size)
+    page = await film_service.search(query, page_number, page_size)
     return page
 
 
@@ -66,36 +52,14 @@ async def film_search(
     response_model=Page[FilmBrief],
 )
 async def film_list(
-    sort: Optional[FilmSortingType] = Query(
-        title='Сортировка',
-        default=None,
-        description='Критерий сортировки.',
-        example=FilmSortingType.imdb_rating_desc,
-    ),
-    filter_type: Optional[FilmFilterType] = Query(
-        default=None,
-        title='Тип фильтрации',
-        description='Выберите тип фильтрации из предложенных.',
-        example='genres',
-    ),
-    filter_value: Optional[str] = Query(
-        default=None,
-        title='Значение для фильтрации',
-        description='UUID для сортировки по выбранному типу.',
-        example='0b105f87-e0a5-45dc-8ce7-f8632088f390',
-    ),
-    page: Optional[int] = Query(
-        alias='page[number]', title='Страница', default=1, ge=1, description='Номер страницы.',
-    ),
-    size: Optional[int] = Query(
-        alias='page[size]',
-        title='Размер',
-        default=20,
-        ge=1,
-        le=50,
-        description='Результатов на странице.',
-    ),
+    sort: Optional[FilmSortingType] = Query(**ep_params.DEFAULT_FILM_SORT),
+    filter_type: Optional[FilmFilterType] = Query(**ep_params.DEFAULT_FILM_FILTER_TYPE),
+    filter_value: Optional[str] = Query(**ep_params.DEFAULT_FILM_FILTER_VALUE),
+    page_number: Optional[int] = Query(**ep_params.DEFAULT_PAGE_NUMBER),
+    page_size: Optional[int] = Query(**ep_params.DEFAULT_PAGE_SIZE),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
-    page = await film_service.get_sort_filter_page(sort, filter_type, filter_value, page, size)
+    page = await film_service.get_sorted_filtered(
+        sort, filter_type, filter_value, page_number, page_size
+    )
     return page

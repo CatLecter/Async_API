@@ -2,7 +2,12 @@
 Демо проект для **Яндекс.Практикум**.
 
 ## Запуск проекта (DEVELOPMENT)
+Для Linux:
+```shell
+make dev
+```
 
+Для Windows:
 ```shell
 docker-compose -f docker-compose.dev.yml up -d --build
 ```
@@ -16,6 +21,12 @@ docker-compose -f docker-compose.dev.yml up -d --build
 
 ### Конфигурация
 Создать файлы с переменными окружения из следующих примеров:
+
+Для Linux:
+```shell
+make create_env
+```
+Для Windows:
 ```shell
 cp deploy/admin_panel/example.env deploy/admin_panel/.env
 cp deploy/db/example.env deploy/db/.env
@@ -24,6 +35,12 @@ cp deploy/ps_to_es/example.env deploy/ps_to_es/.env
 
 ### Установка
 Выполнить следующие команды из корневой директории проекта:
+
+Для Linux:
+```shell
+make prod
+```
+Для Windows:
 ```shell
 docker-compose -f docker-compose.yml down -v
 docker-compose -f docker-compose.yml up -d --build

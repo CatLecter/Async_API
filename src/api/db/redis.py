@@ -1,49 +1,35 @@
-import asyncio
-import functools
 import logging
-import pickle
-from datetime import timedelta
-from typing import Callable, Optional
+from typing import Optional
 
 import aioredis.errors
+import backoff
 from aioredis import Redis
 
-from core.config import CACHE_TTL
+from core import config
+from core.utils import backoff_hdlr
 
 logger = logging.getLogger(__name__)
 redis: Optional[Redis] = None
 
 
-# Функция понадобится при внедрении зависимостей
 async def get_redis() -> Redis:
+    """Возвращает объект для асинхронного общения с сервисами Redis.
+    Функция понадобится при внедрении зависимостей."""
     return redis
 
 
-def redis_cache_me(key_function: Callable, ttl: timedelta = CACHE_TTL):
-    """Декоратор для кэширования возвращаемого функцией значения в редис."""
+@backoff.on_exception(backoff.expo, ConnectionError, on_backoff=backoff_hdlr)
+async def redis_connect():
+    """Устанавливает подключение к сервису Redis."""
+    global redis
+    redis = await aioredis.create_redis_pool(
+        (config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20
+    )
+    logger.info('Successfully connected to redis server.')
 
-    def _decorator(func):
-        @functools.wraps(func)
-        async def _wrapper(*args, **kwargs):
-            cache_key = f'{func.__module__}:{func.__name__}:{key_function(*args, **kwargs)}'
 
-            try:
-                pickled_data = await redis.get(cache_key)
-                if pickled_data is not None:
-                    data = pickle.loads(pickled_data)
-                    logger.info(f'Get data from Redis by key "{cache_key}".')
-                    return data
-            except aioredis.errors.RedisError as e:
-                logger.error(e)
-
-            data = await func(*args, **kwargs)
-            logger.info(f'Put data to Redis by key "{cache_key}".')
-            pickled_data = pickle.dumps(data)
-            asyncio.create_task(
-                redis.set(cache_key, pickled_data, expire=int(ttl.total_seconds()))
-            )
-            return data
-
-        return _wrapper
-
-    return _decorator
+async def redis_disconnect():
+    """Закрывает подключение к сервису Redis."""
+    global redis
+    await redis.wait_closed()
+    logger.info('Successfully disconnected from redis server.')

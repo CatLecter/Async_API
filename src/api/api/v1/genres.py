@@ -1,11 +1,13 @@
 from http import HTTPStatus
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from core import endpoints_params as ep_params
 from core.config import NOT_FOUND_MESSAGE
+from models.general import Page
 from models.genre import Genre, GenreBrief
-from services.genre import GenreService, get_genre_service
+from services.genre import GenreService
+from services.getters import get_genre_service
 
 router = APIRouter(prefix='/genres', tags=['Жанры'])
 
@@ -17,12 +19,7 @@ router = APIRouter(prefix='/genres', tags=['Жанры'])
     response_model=Genre,
 )
 async def genre_details(
-    uuid: str = Query(
-        title='UUID жанра',
-        default=None,
-        description='Поиск жанра по его UUID.',
-        example='2f89e116-4827-4ff4-853c-b6e058f71e31',
-    ),
+    uuid: str = Query(**ep_params.DEFAULT_UUID),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> Genre:
     genre = await genre_service.get_by_uuid(uuid)
@@ -35,10 +32,11 @@ async def genre_details(
     path='/',
     name='Список жанров',
     description='Список всех жанров на сайте.',
-    response_model=List[GenreBrief],
+    response_model=Page[GenreBrief],
 )
 async def genre_list(
+    query: str = Query(**ep_params.DEFAULT_QUERY),
     genre_service: GenreService = Depends(get_genre_service),
-) -> List[GenreBrief]:
-    page = await genre_service.genre_list()
+) -> Page[GenreBrief]:
+    page = await genre_service.search(query=query)
     return page

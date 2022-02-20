@@ -1,125 +1,76 @@
-from functools import lru_cache
 from typing import Optional
 
-from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MultiMatch, Nested, Term
-from fastapi import Depends
-
-from db.elastic import get_elastic
-from db.redis import get_redis, redis_cache_me
+from engines.cache.general import CacheEngine
+from engines.search.general import SearchEngine, SearchParams
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
 
 
 class FilmService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+    def __init__(self, cache_engine: CacheEngine, search_engine: SearchEngine):
+        self.table = 'movies'
+        self.cache_engine = cache_engine
+        self.search_engine = search_engine
 
-    @redis_cache_me(key_function=lambda self, film_uuid: f'film_uuid:{film_uuid}')
-    async def get_by_uuid(self, film_uuid: str) -> Optional[Film]:
+    async def get_by_uuid(self, uuid: str) -> Optional[Film]:
         """Возвращает фильм по UUID."""
-        try:
-            doc = await self.elastic.get(index='movies', id=film_uuid)
-        except NotFoundError:
-            return None
-        return Film(**doc['_source'])
+        cache_key = f'{self.table}:get_by_uuid(uuid={uuid})'
 
-    async def get_search_result_page(
-        self, query: str, page: int, size: int
-    ) -> Page[FilmBrief]:
+        data = await self.cache_engine.load_from_cache(cache_key)
+        if not data:
+            data = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
+            if not data:
+                return None
+            await self.cache_engine.save_to_cache(cache_key, data)
+
+        return Film(**data)
+
+    async def search(self, query: str, page_number: int, page_size: int) -> Page[FilmBrief]:
         """Ищет фильмы по названию или описанию. Не кеширует результаты, так как вариантов может быть очень много."""
-        film_page = await self._get_film_page_from_elastic(query=query, page=page, size=size,)
-        return film_page
+        params = SearchParams(
+            query_fields=['title^3', 'description'],
+            query_value=query,
+            page_number=page_number,
+            page_size=page_size,
+        )
 
-    @redis_cache_me(
-        key_function=lambda self, sort, filter_type, filter_value, page, size: f'sort:{sort.value},filter_type:{filter_type},filter_value:{filter_value},page:{page},size:{size}'
-    )
-    async def get_sort_filter_page(
+        search_results = await self.search_engine.search(table=self.table, params=params)
+
+        data_page = Page(
+            items=[FilmBrief(**item) for item in search_results.items],
+            total=search_results.total,
+            page_number=page_number,
+            page_size=page_size,
+        )
+        return data_page
+
+    async def get_sorted_filtered(
         self,
         sort: FilmSortingType,
-        filter_type: FilmFilterType,
+        filter_field: FilmFilterType,
         filter_value: str,
-        page: int,
-        size: int,
+        page_number: int,
+        page_size: int,
     ) -> Page[FilmBrief]:
         """Возвращает список фильмов с фильтрацией и сортировкой."""
-        film_page = await self._get_film_page_from_elastic(
-            sort=sort,
-            filter_type=filter_type,
+        cache_key = f'{self.table}:get_sorted_filtered(sort={sort.value},filter_field={filter_field.value},filter_value={filter_value},page_number={page_number},page_size={page_size}))'
+        params = SearchParams(
+            sort_field=sort.value,
+            filter_field=filter_field.value,
             filter_value=filter_value,
-            page=page,
-            size=size,
-        )
-        return film_page
-
-    async def _get_film_page_from_elastic(
-        self,
-        query: str = None,
-        sort: FilmSortingType = None,
-        filter_type: FilmFilterType = None,
-        filter_value: str = None,
-        page: int = None,
-        size: int = None,
-    ) -> Page[FilmBrief]:
-        try:
-            search = Search(using=self.elastic)
-            if query:
-                search = search.query(
-                    MultiMatch(
-                        query=query,
-                        fields=['title^3', 'description'],
-                        operator='and',
-                        fuzziness='AUTO',
-                    )
-                )
-            if sort:
-                search = search.sort(sort.value)
-            if filter_type:
-                if filter_type == FilmFilterType.genre:
-                    search = search.query(
-                        Nested(path='genres', query=Term(genres__uuid=filter_value))
-                    )
-                elif filter_type == FilmFilterType.person:
-                    search = search.query(
-                        Nested(path='directors', query=Term(directors__uuid=filter_value))
-                        | Nested(path='writers', query=Term(writers__uuid=filter_value))
-                        | Nested(path='actors', query=Term(actors__uuid=filter_value))
-                    )
-                elif filter_type == FilmFilterType.director:
-                    search = search.query(
-                        Nested(path='directors', query=Term(directors__uuid=filter_value))
-                    )
-                elif filter_type == FilmFilterType.writer:
-                    search = search.query(
-                        Nested(path='writers', query=Term(writers__uuid=filter_value))
-                    )
-                elif filter_type == FilmFilterType.actor:
-                    search = search.query(
-                        Nested(path='actors', query=Term(actors__uuid=filter_value))
-                    )
-            start = (page - 1) * size
-            end = start + size
-            search = search[start:end]
-            body = search.to_dict()
-            docs = await self.elastic.search(index='movies', body=body)
-        except NotFoundError:
-            return Page()
-
-        film_page = Page(
-            items=[FilmBrief(**doc['_source']) for doc in docs['hits']['hits']],
-            total=docs['hits']['total']['value'],
-            page=page,
-            size=size,
+            page_number=page_number,
+            page_size=page_size,
         )
 
-        return film_page
+        search_results = await self.cache_engine.load_from_cache(cache_key)
+        if not search_results:
+            search_results = await self.search_engine.search(table=self.table, params=params)
+            await self.cache_engine.save_to_cache(cache_key, search_results)
 
-
-@lru_cache()
-def get_film_service(
-    redis: Redis = Depends(get_redis), elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
-    return FilmService(redis, elastic)
+        data_page = Page(
+            items=[FilmBrief(**item) for item in search_results.items],
+            total=search_results.total,
+            page_number=page_number,
+            page_size=page_size,
+        )
+        return data_page
