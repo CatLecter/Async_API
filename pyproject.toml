@@ -16,6 +16,7 @@ orjson = "~=3.6.6"
 uvloop = "0.16.0"
 elasticsearch-dsl = "7.4.0"
 uvicorn = "^0.17.5"
+backoff = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.10.1"
