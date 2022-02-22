@@ -3,12 +3,12 @@ import pytest
 # https://www.youtube.com/watch?v=MIHXRF6YMN4
 # todo: УДАЛИТЬ ЭТОТ ФАЙЛ ПЕРЕД СДАЧЕЙ!
 
+
 def test_simple():
     assert 10 / 2 == 5
 
 
-@pytest.mark.parametrize("a, b, c", [(10, 5, 2),
-                                     (10, 2, 5)])
+@pytest.mark.parametrize("a, b, c", [(10, 5, 2), (10, 2, 5)])
 def test_simple_2(a, b, c):
     assert int(a) / int(b) == int(c)
 
@@ -16,7 +16,6 @@ def test_simple_2(a, b, c):
 def test_error():
     with pytest.raises(TypeError):
         a = 10 / "2"
-
 
 
 # @pytest.mark.asyncio

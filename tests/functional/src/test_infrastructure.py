@@ -1,14 +1,13 @@
-from tests.functional.utils.es_helper import ESHelper
-from tests.functional.utils.redis_helper import RedisHelper
+import pytest
 
 
-async def test_ping_es():
-    es_helper = ESHelper()
-    es_ping = await es_helper.client.ping()
+@pytest.mark.asyncio
+async def test_ping_es(create_index):
+    es_ping = await create_index.ping()
     assert es_ping is True
 
 
-async def test_ping_redis():
-    redis_helper = RedisHelper()
-    redis_ping = await redis_helper.redis.ping()
-    assert redis_ping is True
+@pytest.mark.asyncio
+async def test_ping_redis(create_cache):
+    redis_ping = await create_cache.ping()
+    assert redis_ping == b"PONG"
