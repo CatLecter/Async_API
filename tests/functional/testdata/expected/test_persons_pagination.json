@@ -1,0 +1,87 @@
+{
+  "items": [
+    {
+      "uuid": "a3ba9b10-6052-4f6c-801d-fa931e770dc6",
+      "full_name": "Chulpan Khamatova"
+    },
+    {
+      "uuid": "a9115468-8cb5-481b-b384-5b44e4d21490",
+      "full_name": "Savely Kramarov"
+    },
+    {
+      "uuid": "af880da3-cb79-4f10-a199-9527dbf72c37",
+      "full_name": "Aleksandr Muratov"
+    },
+    {
+      "uuid": "b56f82a4-f897-4273-8754-01e992ee0bd0",
+      "full_name": "Larisa Eryomina"
+    },
+    {
+      "uuid": "b92425b4-4fc3-4fcb-ab19-c0f568f3573d",
+      "full_name": "Georgiy Vitsin"
+    },
+    {
+      "uuid": "bf039d04-c5c2-4dd4-93d3-379129a126cf",
+      "full_name": "Oksana Korostyshevskaya"
+    },
+    {
+      "uuid": "c4c32356-8eab-4882-a6b8-d191a7dfba74",
+      "full_name": "Leonid Kuravlyov"
+    },
+    {
+      "uuid": "c5266621-d024-419e-91e2-7ae04ac75557",
+      "full_name": "Bill Paxton"
+    },
+    {
+      "uuid": "c56deb48-3b52-41a2-90fb-58ceaf28a173",
+      "full_name": "Viktor Pavlov"
+    },
+    {
+      "uuid": "c65a6098-d0c7-400e-9d0f-335477a879c3",
+      "full_name": "Maxim Korostyshevsky"
+    },
+    {
+      "uuid": "cb06f9f9-36c3-47be-a4c4-fccb55e82f90",
+      "full_name": "Vasyl Virastyuk"
+    },
+    {
+      "uuid": "cd72e685-28c7-4cf8-a351-0f14d568d7c0",
+      "full_name": "Egor Beroev"
+    },
+    {
+      "uuid": "d0dbd553-9623-4a2f-bc0c-532180bba230",
+      "full_name": "Nikolay Chindyaykin"
+    },
+    {
+      "uuid": "d0dd7324-eef2-4a70-95b1-892c9132efd2",
+      "full_name": "Mikhail Bulgakov"
+    },
+    {
+      "uuid": "d38503d6-83a0-44d5-975b-aa61c680e04a",
+      "full_name": "Olga Sumskaya"
+    },
+    {
+      "uuid": "d3e68ac0-22ff-428d-9b2d-d1173af6371b",
+      "full_name": "Vladimir Vladislavskiy"
+    },
+    {
+      "uuid": "d784531a-05b7-4822-a995-f283fc6a898c",
+      "full_name": "Viktor Andrienko"
+    },
+    {
+      "uuid": "d897757e-8262-4b2a-aebd-5e9255ee16fa",
+      "full_name": "Sergei Filippov"
+    },
+    {
+      "uuid": "e1afd95c-b547-41a5-8697-9999fa697686",
+      "full_name": "Arnold Schwarzenegger"
+    },
+    {
+      "uuid": "e27ebcd7-003e-4a4d-9e5c-c38d282ff141",
+      "full_name": "Dan Stanton"
+    }
+  ],
+  "total": 65,
+  "page_number": 3,
+  "page_size": 20
+}

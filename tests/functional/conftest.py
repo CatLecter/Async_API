@@ -1,7 +1,6 @@
 import asyncio
 import json
 from dataclasses import dataclass
-from pathlib import Path
 
 import aiofiles as aiofiles
 import aiohttp
@@ -11,7 +10,6 @@ from multidict import CIMultiDictProxy
 
 from tests.functional.settings import config
 from tests.functional.utils.es_helper import ESHelper
-from tests.functional.utils.redis_helper import RedisHelper
 
 
 @dataclass
