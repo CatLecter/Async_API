@@ -17,7 +17,7 @@ async def test_genres_search(create_index, make_get_request, expected_json_respo
     assert response.body == expected_json_response
 
 
-@pytest.mark.asynciobla
+@pytest.mark.asyncio
 async def test_genres_search_not_found(
     create_index, make_get_request, expected_json_response
 ):
