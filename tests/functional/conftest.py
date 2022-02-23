@@ -24,7 +24,6 @@ class HTTPResponse:
 @pytest.fixture(scope="session")
 async def session():
     session = aiohttp.ClientSession()
-    print("123")
     yield session
     await session.close()
 
@@ -36,7 +35,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def create_index():
     """Создаёт индексы перед сессией тестов и
     удаляет их после окончания тестов.
@@ -45,14 +44,16 @@ async def create_index():
     es_helper = ESHelper()
     await es_helper.create_index()
     await es_helper.load_data()
-    yield es_helper.client
+    if await es_helper.check_data_in_index():
+        yield es_helper.client
     await es_helper.delete_index()
     await es_helper.client.close()
 
 
 @pytest.fixture(scope="session")
 async def create_cache():
-    """Создаёт объект кэша."""
+    """Создаёт объект кэша и очищает его перед работой и после."""
+
     redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT))
     await redis.flushall()
     yield redis
@@ -65,7 +66,6 @@ async def create_cache():
 def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
         url = f"{config.SERVICE_URL}/api/v1{method}"
-        print(url)
         async with session.get(url, params=params) as response:
             return HTTPResponse(
                 body=await response.json(),
@@ -81,6 +81,7 @@ async def expected_json_response(request):
     """
     Loads expected response from json file with same filename as function name
     """
+
     file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
     async with aiofiles.open(file) as f:
         content = await f.read()

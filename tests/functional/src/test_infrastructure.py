@@ -10,7 +10,6 @@ async def test_ping_es(create_index):
 # http://127.0.0.1:9200/_aliases ->
 # {"persons":{"aliases":{}},"movies":{"aliases":{}},"genres":{"aliases":{}}}
 
-
 @pytest.mark.asyncio
 async def test_ping_redis(create_cache):
     redis_ping = await create_cache.ping()

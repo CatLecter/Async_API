@@ -17,6 +17,7 @@ uvloop = "0.16.0"
 elasticsearch-dsl = "7.4.0"
 uvicorn = "^0.17.5"
 backoff = "^1.11.1"
+aiofiles = "^0.8.0"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.10.1"

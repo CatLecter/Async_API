@@ -40,6 +40,13 @@ class ESHelper:
                 ],
             )
 
+    async def check_data_in_index(self):
+        for name in names_file(config.indexes_dir):
+            items = {}
+            while not items.get("count"):
+                items = await self.client.count(index=name)
+        return True
+
     async def delete_index(self):
         """Метод удаляет индексы по их названию."""
 

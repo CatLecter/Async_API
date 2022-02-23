@@ -1,11 +1,14 @@
 import pytest
 
+
 @pytest.mark.asyncio
-async def test_search_person(make_get_request,
-                             create_index,
-                             expected_json_response):
+async def test_search_person(
+        create_index,
+        make_get_request,
+        expected_json_response,
+):
     response = await make_get_request("/persons/search/",
-                                      params={"query": "Terminator"})
+                                      params={"query": "David"})
     assert response.status == 200
     assert response.body == expected_json_response
 #
