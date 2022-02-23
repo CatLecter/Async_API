@@ -1,25 +1,19 @@
-# import uuid
-# from http import HTTPStatus
-# from typing import Callable
-#
-# import pytest
-#
-#
-# @pytest.mark.usefixtures("data_setup")
-# @pytest.mark.data_setup_params("genres", "genres_list.json")
-# @pytest.mark.asyncio
-# class TestGenreDetail:
-#     async def test_success(self, make_get_request: Callable):
-#         response = await make_get_request(
-#             "/genre/{uuid}".format(uuid="03c54c71-fca0-4536-a169-df82b9bdee2d"), {}
-#         )
-#
-#         assert response.status == HTTPStatus.OK
-#         assert response.body["uuid"] == "03c54c71-fca0-4536-a169-df82b9bdee2d"
-#         assert response.body.get("name", None)
-#
-#     async def test_not_found(self, make_get_request: Callable):
-#         response = await make_get_request("/genre/{uuid}".format(uuid=uuid.uuid4()))
-#
-#         assert response.status == HTTPStatus.NOT_FOUND
-#         assert response.body == {"detail": "genre not found"}
+from http import HTTPStatus
+from uuid import uuid4
+import pytest
+
+
+@pytest.mark.asyncio
+async def test_genre_detail(create_index, make_get_request):
+    _uuid = "87751d4c-a850-4e2c-84dc-da6a797d76de"
+    response = await make_get_request(f"/genres/{_uuid}", params={})
+    assert response.status == HTTPStatus.OK
+    assert response.body["uuid"] == _uuid
+    assert response.body["name"] == "Adventure"
+
+
+@pytest.mark.asyncio
+async def test_genre_not_found(create_index, make_get_request):
+    _uuid = uuid4()
+    response = await make_get_request(f"/genres/{_uuid}", params={})
+    assert response.status == HTTPStatus.NOT_FOUND
