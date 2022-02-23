@@ -11,54 +11,44 @@ async def test_search_person(
                                       params={"query": "David"})
     assert response.status == 200
     assert response.body == expected_json_response
-#
-#
-# @pytest.mark.asyncio
-# async def test_person_by_id(make_get_request,
-#                             initialize_environment,
-#                             expected_json_response):
-#     some_id = "239f6e94-b317-4f10-bb0c-ef86dfe33d8a"
-#     response = await make_get_request(f"/person/{some_id}")
-#     assert response.status == 200
-#     assert response.body == expected_json_response
-#
-#
-# @pytest.mark.asyncio
-# async def test_person_films_by_id(make_get_request,
-#                                   initialize_environment,
-#                                   expected_json_response):
-#     some_id = "239f6e94-b317-4f10-bb0c-ef86dfe33d8a"
-#     response = await make_get_request(f"/person/{some_id}/film")
-#     assert response.status == 200
-#     assert response.body == expected_json_response
-#
-#
-# @pytest.mark.asyncio
-# @pytest.mark.parametrize(
-#     (
-#             'page_number', 'page_size'
-#     ),
-#     (
-#             (1, 1),
-#             ("1", "1"),
-#             (1, 5),
-#             (5, 1),
-#             (1, 4164),  # total number of persons
-#     )
-# )
-# async def test_search_person_pagination(make_get_request,
-#                                         initialize_environment,
-#                                         page_number,
-#                                         page_size):
-#     """Pagination tests for common cases"""
-#     # only check response status and number of elements here
-#     response = await make_get_request("/person/search/",
-#                                       params={
-#                                           "page[number]": page_number,
-#                                           "page[size]": page_size}
-#                                       )
-#     assert response.status == 200
-#     assert len(response.body) == int(page_size)
+
+
+@pytest.mark.asyncio
+async def test_person_by_id(create_index,
+                            make_get_request,
+                            expected_json_response):
+    some_id = "0d3f19e6-c4d2-4610-a2a7-1777dab77bb0"
+    response = await make_get_request(f"/persons/{some_id}")
+    assert response.status == 200
+    assert response.body == expected_json_response
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    (
+            'page_number', 'page_size'
+    ),
+    (
+            (1, 1),
+            ("1", "1"),
+            (1, 5),
+            (5, 1),
+            (1, 4164),  # total number of persons
+    )
+)
+async def test_search_person_pagination(create_index,
+                                        make_get_request,
+                                        page_number,
+                                        page_size):
+    """Pagination tests for common cases"""
+    # only check response status and number of elements here
+    response = await make_get_request("/persons/search/",
+                                      params={
+                                          "page[number]": page_number,
+                                          "page[size]": page_size}
+                                      )
+    assert response.status == 200
+    assert len(response.body) == int(page_size)
 #
 #
 # @pytest.mark.asyncio
