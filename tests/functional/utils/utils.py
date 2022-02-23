@@ -1,10 +1,12 @@
 import os
+from pathlib import Path
+from typing import Union
 
 
-def names_file(path: str):
+def names_file(path: Union[str, Path]):
     """Возвращает лист с названием файлов в папке."""
 
-    files = os.walk(path)
+    files = os.walk(str(path))
     list_idx = []
     for idx in files:
         list_idx = idx[2]

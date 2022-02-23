@@ -1,6 +1,9 @@
 import asyncio
+import json
 from dataclasses import dataclass
+from pathlib import Path
 
+import aiofiles as aiofiles
 import aiohttp
 import aioredis
 import pytest
@@ -56,3 +59,30 @@ async def create_cache():
     await redis.flushall()
     redis.close()
     await redis.wait_closed()
+
+
+@pytest.fixture
+def make_get_request(session):
+    async def inner(method: str, params: dict = None) -> HTTPResponse:
+        url = f"{config.SERVICE_URL}/api/v1{method}"
+        print(url)
+        async with session.get(url, params=params) as response:
+            return HTTPResponse(
+                body=await response.json(),
+                headers=response.headers,
+                status=response.status,
+            )
+
+    return inner
+
+
+@pytest.fixture(scope="function")
+async def expected_json_response(request):
+    """
+    Loads expected response from json file with same filename as function name
+    """
+    file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
+    async with aiofiles.open(file) as f:
+        content = await f.read()
+        response = json.loads(content)
+    return response

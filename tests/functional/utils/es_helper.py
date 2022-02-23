@@ -18,8 +18,9 @@ class ESHelper:
         Наименование индекса в Elasticsearch совпадает с именем файла.
         """
 
-        for name in names_file("../testdata/indexes"):
-            with open(f"../testdata/indexes/{name}.json", "r") as f:
+        # ../testdata (было)
+        for name in names_file(config.indexes_dir):
+            with open(config.indexes_dir.joinpath(f"{name}.json"), "r", encoding='utf-8') as f:
                 index_data = json.load(f)
             await self.client.indices.create(index=name, body=index_data, ignore=400)
 
@@ -29,8 +30,9 @@ class ESHelper:
         Имена файлов должны соответствовать имени индекса.
         """
 
-        for name in names_file("../testdata/data_for_indexes"):
-            with open(f"../testdata/data_for_indexes/{name}.json", "r") as f:
+        # ../testdata (было)
+        for name in names_file(config.data_dir):
+            with open(config.data_dir.joinpath(f"{name}.json"), "r", encoding='utf-8') as f:
                 index_data = json.load(f)
             await async_bulk(
                 client=self.client,
@@ -43,5 +45,6 @@ class ESHelper:
     async def delete_index(self):
         """Метод удаляет индексы по их названию."""
 
-        for name in names_file("../testdata/indexes"):
+        # ../testdata (было)
+        for name in names_file(config.indexes_dir):
             await self.client.indices.delete(index=name, ignore=[400, 404])
