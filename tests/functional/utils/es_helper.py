@@ -19,6 +19,8 @@ class ESHelper:
         """
 
         # ../testdata (было)
+        import os
+        print(os.getcwd())
         for name in names_file(config.indexes_dir):
             with open(config.indexes_dir.joinpath(f"{name}.json"), "r", encoding='utf-8') as f:
                 index_data = json.load(f)
