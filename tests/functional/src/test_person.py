@@ -5,7 +5,7 @@ async def test_search_person(make_get_request,
                              create_index,
                              expected_json_response):
     response = await make_get_request("/persons/search/",
-                                      params={"query": "Lucas"})
+                                      params={"query": "Terminator"})
     assert response.status == 200
     assert response.body == expected_json_response
 #
