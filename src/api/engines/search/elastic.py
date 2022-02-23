@@ -29,7 +29,7 @@ class ElasticSearchEngine(SearchEngine):
             search = Search(using=self.elastic)
 
             # Поиск по тексту
-            if params.query_fields:
+            if params.query_fields and params.query_value:
                 search = search.query(
                     MultiMatch(
                         query=params.query_value,

@@ -1,0 +1,13 @@
+{
+  "uuid": "3499da28-d6ba-4d4a-8f7e-81c09c6b0912",
+  "full_name": "J. Randolph Harrison",
+  "birth_date": "1955-06-07",
+  "film_works": [
+    {
+      "uuid": "c3565f1d-1bda-4d13-afc1-3e734ce48c7d",
+      "title": "The Terminator",
+      "imdb_rating": 7.4,
+      "role": "actor"
+    }
+  ]
+}

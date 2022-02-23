@@ -78,8 +78,10 @@ def make_get_request(session):
 
 @pytest.fixture(scope="function")
 async def expected_json_response(request):
-    """
-    Loads expected response from json file with same filename as function name
+    """Загружает ожидаемый ответ из json файлов в папке
+    /testdata/expected для сравнения с полученным телом ответа.
+    Файлы с ожидаемым результатом должны иметь имена идентичные
+    именам функций тестов использующие их.
     """
 
     file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
