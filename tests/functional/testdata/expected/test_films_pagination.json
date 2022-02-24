@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "uuid": "679e1fc8-bdbb-4298-b007-c76cf7c5e294",
+      "title": "Іван Сила",
+      "imdb_rating": 7
+    },
+    {
+      "uuid": "6ca6dcd7-cd61-4db1-b9c3-efa531d5ea9a",
+      "title": "Ivan Vasilyevich Changes His Profession",
+      "imdb_rating": 7.8
+    },
+    {
+      "uuid": "71fd84b4-5391-473b-a7bb-e87aee94e4af",
+      "title": "Star Trek",
+      "imdb_rating": 7.4
+    },
+    {
+      "uuid": "a8f8d211-2ed5-4155-913d-2dbd52fa016b",
+      "title": "Dura",
+      "imdb_rating": 4.3
+    }
+  ],
+  "total": 10,
+  "page_number": 2,
+  "page_size": 4
+}

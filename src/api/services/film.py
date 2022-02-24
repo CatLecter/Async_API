@@ -3,7 +3,7 @@ from typing import Optional
 from engines.cache.general import CacheEngine
 from engines.search.general import SearchEngine, SearchParams
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
-from models import Page
+from models.general import Page
 
 
 class FilmService:

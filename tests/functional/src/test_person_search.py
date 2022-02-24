@@ -1,23 +1,56 @@
-# from http import HTTPStatus
-# from typing import Callable
-#
-# import pytest
-#
-#
-# @pytest.mark.usefixtures("data_setup")
-# @pytest.mark.data_setup_params("persons", "persons_list.json")
-# @pytest.mark.asyncio
-# class TestPersonsList:
-#     async def test_success(self, make_get_request: Callable):
-#         response = await make_get_request("/person/search", {"query": "Юрьевна"})
-#
-#         assert response.status == HTTPStatus.OK
-#         assert len(response.body) == 2
-#
-#     async def test_check_query_and_paging(self, make_get_request: Callable):
-#         response = await make_get_request(
-#             "/person/search", {"query": "София", "page[number]": 2, "page[size]": 3}
-#         )
-#
-#         assert response.status == HTTPStatus.OK
-#         assert len(response.body) == 1
+import pytest
+from http import HTTPStatus
+
+
+@pytest.mark.asyncio
+async def test_persons_search(
+    create_index,
+    make_get_request,
+    expected_json_response,
+):
+    response = await make_get_request("/persons/search/", params={"query": "David"})
+    assert response.status == HTTPStatus.OK
+    assert response.body == expected_json_response
+
+
+@pytest.mark.asyncio
+async def test_persons_search_not_found(
+    create_index, make_get_request, expected_json_response
+):
+    response = await make_get_request("/persons/search/", params={"query": "NotFound"})
+    assert response.status == HTTPStatus.OK
+    assert response.body == expected_json_response
+
+
+@pytest.mark.asyncio
+async def test_persons_pagination(
+    create_index,
+    make_get_request,
+    expected_json_response,
+):
+    response = await make_get_request(
+        "/persons/search/",
+        params={
+            "page[number]": 3,
+            "page[size]": 20
+        }
+    )
+    assert response.status == HTTPStatus.OK
+    assert response.body == expected_json_response
+
+
+@pytest.mark.asyncio
+async def test_persons_all(
+    create_index,
+    make_get_request,
+    expected_json_response,
+):
+    response = await make_get_request(
+        "/persons/search/",
+        params={
+            "page[number]": 1,
+            "page[size]": 65
+        }
+    )
+    assert response.status == HTTPStatus.OK
+    assert response.body == expected_json_response

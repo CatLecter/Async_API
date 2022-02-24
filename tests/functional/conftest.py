@@ -1,7 +1,6 @@
 import asyncio
 import json
 from dataclasses import dataclass
-from pathlib import Path
 
 import aiofiles as aiofiles
 import aiohttp
@@ -11,7 +10,6 @@ from multidict import CIMultiDictProxy
 
 from tests.functional.settings import config
 from tests.functional.utils.es_helper import ESHelper
-from tests.functional.utils.redis_helper import RedisHelper
 
 
 @dataclass
@@ -28,9 +26,11 @@ async def session():
     await session.close()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='module')
 def event_loop():
-    loop = asyncio.get_event_loop()
+    """Решение проблемы с фикстурами: Event loop is closed."""
+    import asyncio
+    loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
@@ -65,7 +65,7 @@ async def create_cache():
 @pytest.fixture
 def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
-        url = f"{config.SERVICE_URL}/api/v1{method}"
+        url = f"http://{config.SERVICE_URL}:{config.SERVICE_PORT}/api/v1{method}"
         async with session.get(url, params=params) as response:
             return HTTPResponse(
                 body=await response.json(),
@@ -78,12 +78,14 @@ def make_get_request(session):
 
 @pytest.fixture(scope="function")
 async def expected_json_response(request):
-    """
-    Loads expected response from json file with same filename as function name
+    """Загружает ожидаемый ответ из json файлов в папке
+    /testdata/expected для сравнения с полученным телом ответа.
+    Файлы с ожидаемым результатом должны иметь имена идентичные
+    именам функций тестов использующие их.
     """
 
     file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
-    async with aiofiles.open(file) as f:
+    async with aiofiles.open(file, encoding='utf-8') as f:
         content = await f.read()
         response = json.loads(content)
     return response
