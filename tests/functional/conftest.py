@@ -65,7 +65,7 @@ async def create_cache():
 @pytest.fixture
 def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
-        url = f"{config.SERVICE_URL}/api/v1{method}"
+        url = f"http://{config.SERVICE_URL}:{config.SERVICE_PORT}/api/v1{method}"
         async with session.get(url, params=params) as response:
             return HTTPResponse(
                 body=await response.json(),

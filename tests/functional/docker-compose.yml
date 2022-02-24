@@ -9,6 +9,8 @@ services:
       - REDIS_PORT=6379
       - ELASTIC_HOST=http://elastic
       - ELASTIC_PORT=9200
+      - SERVICE_URL=api
+      - SERVICE_PORT=8000
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     depends_on:
