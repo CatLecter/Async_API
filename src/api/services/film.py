@@ -3,7 +3,7 @@ from typing import Optional
 from engines.cache.general import CacheEngine
 from engines.search.general import SearchEngine, SearchParams
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
-from models.general import Page
+from models import Page
 
 
 class FilmService:
@@ -46,17 +46,19 @@ class FilmService:
 
     async def get_sorted_filtered(
         self,
-        sort: FilmSortingType,
-        filter_field: FilmFilterType,
+        sort: Optional[FilmSortingType],
+        filter_field: Optional[FilmFilterType],
         filter_value: str,
         page_number: int,
         page_size: int,
     ) -> Page[FilmBrief]:
         """Возвращает список фильмов с фильтрацией и сортировкой."""
-        cache_key = f'{self.table}:get_sorted_filtered(sort={sort.value},filter_field={filter_field.value},filter_value={filter_value},page_number={page_number},page_size={page_size}))'
+        sort_value = sort.value if sort else None
+        filter_field_value = filter_field.value if filter_field else None
+        cache_key = f'{self.table}:get_sorted_filtered(sort={sort_value},filter_field={filter_field_value},filter_value={filter_value},page_number={page_number},page_size={page_size}))'
         params = SearchParams(
-            sort_field=sort.value,
-            filter_field=filter_field.value,
+            sort_field=sort_value,
+            filter_field=filter_field_value,
             filter_value=filter_value,
             page_number=page_number,
             page_size=page_size,
