@@ -1,3 +1,8 @@
+test:
+	docker-compose -f tests/functional/docker-compose.yml up -d
+	sleep 30
+	pytest tests/functional/src/
+
 dev:
 	docker-compose -f docker-compose.dev.yml up -d --build
 
