@@ -10,9 +10,9 @@ class TestSettings(BaseSettings):
     REDIS_PORT: str = Field("6379", env="REDIS_PORT")
     SERVICE_URL: str = Field("http://127.0.0.1:8000", env="SERVICE_URL")
 
-    expected_responses_dir: Path = Field(Path.cwd().joinpath("functional/testdata/expected"))
-    indexes_dir: Path = Field(Path.cwd().joinpath("functional/testdata/indexes"))
-    data_dir: Path = Field(Path.cwd().joinpath("functional/testdata/data_for_indexes"))
+    expected_responses_dir: Path = Field(Path(__file__).parent.joinpath("testdata/expected"))
+    indexes_dir: Path = Field(Path(__file__).parent.joinpath("testdata/indexes"))
+    data_dir: Path = Field(Path(__file__).parent.joinpath("testdata/data_for_indexes"))
 
     class Config:
         env_file = ".env"
