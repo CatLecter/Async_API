@@ -83,7 +83,7 @@ async def expected_json_response(request):
     """
 
     file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
-    async with aiofiles.open(file) as f:
+    async with aiofiles.open(file, encoding='utf-8') as f:
         content = await f.read()
         response = json.loads(content)
     return response
