@@ -26,9 +26,11 @@ async def session():
     await session.close()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='module')
 def event_loop():
-    loop = asyncio.get_event_loop()
+    """Решение проблемы с фикстурами: Event loop is closed."""
+    import asyncio
+    loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
