@@ -1,48 +1,16 @@
 from typing import Optional
 
-from engines.cache.general import CacheEngine
-from engines.search.general import SearchEngine, SearchParams
+from engines.search.general import SearchParams
 from models.film import Film, FilmBrief, FilmFilterType, FilmSortingType
 from models.general import Page
+from services.general import GeneralService
 
 
-class FilmService:
-    def __init__(self, cache_engine: CacheEngine, search_engine: SearchEngine):
-        self.table = 'movies'
-        self.cache_engine = cache_engine
-        self.search_engine = search_engine
-
-    async def get_by_uuid(self, uuid: str) -> Optional[Film]:
-        """Возвращает фильм по UUID."""
-        cache_key = f'{self.table}:get_by_uuid(uuid={uuid})'
-
-        data = await self.cache_engine.load_from_cache(cache_key)
-        if not data:
-            data = await self.search_engine.get_by_pk(table=self.table, pk=uuid)
-            if not data:
-                return None
-            await self.cache_engine.save_to_cache(cache_key, data)
-
-        return Film(**data)
-
-    async def search(self, query: str, page_number: int, page_size: int) -> Page[FilmBrief]:
-        """Ищет фильмы по названию или описанию. Не кеширует результаты, так как вариантов может быть очень много."""
-        params = SearchParams(
-            query_fields=['title^3', 'description'],
-            query_value=query,
-            page_number=page_number,
-            page_size=page_size,
-        )
-
-        search_results = await self.search_engine.search(table=self.table, params=params)
-
-        data_page = Page(
-            items=[FilmBrief(**item) for item in search_results.items],
-            total=search_results.total,
-            page_number=page_number,
-            page_size=page_size,
-        )
-        return data_page
+class FilmService(GeneralService):
+    table = 'movies'
+    query_fields = ['title^3', 'description']
+    item_dataclass = Film
+    item_brief_dataclass = FilmBrief
 
     async def get_sorted_filtered(
         self,
@@ -51,7 +19,7 @@ class FilmService:
         filter_value: str,
         page_number: int,
         page_size: int,
-    ) -> Page[FilmBrief]:
+    ) -> Page[item_brief_dataclass]:
         """Возвращает список фильмов с фильтрацией и сортировкой."""
         sort_value = sort.value if sort else None
         filter_field_value = filter_field.value if filter_field else None
@@ -70,7 +38,7 @@ class FilmService:
             await self.cache_engine.save_to_cache(cache_key, search_results)
 
         data_page = Page(
-            items=[FilmBrief(**item) for item in search_results.items],
+            items=[self.item_brief_dataclass(**item) for item in search_results.items],
             total=search_results.total,
             page_number=page_number,
             page_size=page_size,

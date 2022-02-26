@@ -38,5 +38,7 @@ async def genre_list(
     query: str = Query(**ep_params.DEFAULT_QUERY),
     genre_service: GenreService = Depends(get_genre_service),
 ) -> Page[GenreBrief]:
-    page = await genre_service.search(query=query)
+    page = await genre_service.search(query=query, page_size=10_000, page_number=1)
+    page.page_size = None
+    page.page_number = None
     return page
