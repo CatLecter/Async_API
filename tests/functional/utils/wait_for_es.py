@@ -3,6 +3,9 @@ import os
 
 import backoff
 from elasticsearch import AsyncElasticsearch
+from logger import get_logger
+
+logger = get_logger(__name__)
 
 ELASTIC_HOST = os.getenv("ELASTIC_HOST", "elastic")
 ELASTIC_PORT = int(os.getenv("ELASTIC_PORT", 9200))
@@ -19,12 +22,12 @@ async def elastic_ping(es):
 
 
 async def main():
-    print("WAIT_FOR_ES: Check connection to elasticsearch server.")
+    logger.info("WAIT_FOR_ES: Check connection to elasticsearch server.")
     es = AsyncElasticsearch(hosts=[f"{ELASTIC_HOST}:{ELASTIC_PORT}"])
     await elastic_ping(es)
-    print("WAIT_FOR_ES: Successfully connected to elasticsearch server.")
+    logger.info("WAIT_FOR_ES: Successfully connected to elasticsearch server.")
     await es.close()
-    print("WAIT_FOR_ES: Successfully disconnected from elasticsearch server.")
+    logger.info("WAIT_FOR_ES: Successfully disconnected from elasticsearch server.")
 
 
 if __name__ == "__main__":
