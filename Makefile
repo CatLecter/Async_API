@@ -1,6 +1,6 @@
 test:
 	docker-compose -f tests/functional/docker-compose.yml up -d
-	sleep 30
+	sleep 40
 	pytest tests/functional/src/
 
 dev:

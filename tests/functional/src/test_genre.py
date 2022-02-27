@@ -5,11 +5,13 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_genre(create_index, make_get_request, expected_json_response):
-    _uuid = "87751d4c-a850-4e2c-84dc-da6a797d76de"
-    response = await make_get_request(f"/genres/{_uuid}", params={})
-    assert response.status == HTTPStatus.OK
-    assert response.body == expected_json_response
+async def test_genre(create_index, make_get_request, test_data):
+    expected_result = await test_data("genres")
+    for i in range(len(expected_result)):
+        tested_genre = expected_result[i]
+        response = await make_get_request(f"/genres/{tested_genre['uuid']}", params={})
+        assert response.status == HTTPStatus.OK
+        assert response.body == tested_genre
 
 
 @pytest.mark.asyncio
