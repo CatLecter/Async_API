@@ -1,5 +1,3 @@
-import asyncio
-from typing import Optional
 import json
 from dataclasses import dataclass
 
@@ -76,19 +74,6 @@ def make_get_request(session):
 
     return inner
 
-# @pytest.fixture(scope="function")
-# async def expected_json_response(request):
-#     """Загружает ожидаемый ответ из json файлов в папке
-#     /testdata/expected для сравнения с полученным телом ответа.
-#     Файлы с ожидаемым результатом должны иметь имена идентичные
-#     именам функций тестов использующие их.
-#     """
-#
-#     file = config.expected_responses_dir.joinpath(f"{request.node.name}.json")
-#     async with aiofiles.open(file, encoding='utf-8') as f:
-#         content = await f.read()
-#         response = json.loads(content)
-#     return response
 
 @pytest.fixture
 def test_data():
