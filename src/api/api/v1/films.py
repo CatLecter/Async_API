@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from core import endpoints_params as ep_params
 from core.config import NOT_FOUND_MESSAGE
@@ -52,6 +52,7 @@ async def film_search(
     response_model=Page[FilmBrief],
 )
 async def film_list(
+    request: Request,
     sort: Optional[FilmSortingType] = Query(**ep_params.DEFAULT_FILM_SORT),
     filter_type: Optional[FilmFilterType] = Query(**ep_params.DEFAULT_FILM_FILTER_TYPE),
     filter_value: Optional[str] = Query(**ep_params.DEFAULT_FILM_FILTER_VALUE),
@@ -59,6 +60,11 @@ async def film_list(
     page_size: Optional[int] = Query(**ep_params.DEFAULT_PAGE_SIZE),
     film_service: FilmService = Depends(get_film_service),
 ) -> Page[FilmBrief]:
+    allowed_roles = {'subscriber', 'contributor', 'editor', 'administrator'}
+    if not allowed_roles.intersection(request.state.user_roles):
+        # Анонимным пользователям разрешаем просматривать только первую страницу.
+        page_number = 1
+        page_size = 20
     page = await film_service.get_sorted_filtered(
         sort, filter_type, filter_value, page_number, page_size
     )

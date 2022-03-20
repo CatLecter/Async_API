@@ -41,6 +41,7 @@ make create_env
 cp deploy/admin_panel/example.env deploy/admin_panel/.env
 cp deploy/db/example.env deploy/db/.env
 cp deploy/ps_to_es/example.env deploy/ps_to_es/.env
+cp deploy/api/example.env deploy/api/.env
 ```
 ### Установка
 Выполнить следующие команды из корневой директории проекта:

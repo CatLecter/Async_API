@@ -97,6 +97,8 @@ services:
     build:
       context: .
       dockerfile: deploy/api/Dockerfile
+    env_file:
+      - deploy/api/.env
     environment:
       - PROJECT_NAME=movies
       - REDIS_HOST=redis

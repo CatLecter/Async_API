@@ -43,3 +43,7 @@ ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
 
 # Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# JWT
+jwt_secret_key = os.getenv('SECRET_KEY', 'buz')
+jwt_algorithms = ['HS256']
